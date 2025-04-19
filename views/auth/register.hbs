@@ -1,0 +1,26 @@
+{{! views/auth/register.hbs }}
+<div class="auth-container">
+  <h2>Đăng ký Tài khoản Mới</h2>
+  {{#if error}}
+  <div class="alert error">{{error}}</div>
+  {{/if}}
+  <form action="/register" method="POST">
+    <div class="form-group">
+      <label>Họ và tên:</label>
+      <input type="text" name="fullName" required>
+    </div>
+    <div class="form-group">
+      <label>Email:</label>
+      <input type="email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label>Tên đăng nhập:</label>
+      <input type="text" name="username" required>
+    </div>
+    <div class="form-group">
+      <label>Mật khẩu:</label>
+      <input type="password" name="password" required>
+    </div>
+    <button type="submit">Đăng ký</button>
+  </form>
+</div>
