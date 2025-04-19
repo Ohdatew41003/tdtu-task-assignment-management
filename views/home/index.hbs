@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Chào mừng, {{user.fullName}}!</h1>
+        <p>Vị trí: {{user.position}}</p>
+        <p>Chức vụ: {{user.roles}}</p>
+
+        <nav>
+            <ul>
+                <li><a href="/">Trang Chủ</a></li>
+                <li><a href="/profile">Hồ Sơ</a></li>
+                <li><a href="/settings">Cài Đặt</a></li>
+                <li><a href="/logout">Đăng Xuất</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Nội dung chính</h2>
+        <p>Đây là nội dung chính của trang chủ sau khi bạn đã đăng nhập thành công.</p>
+    </main>
+    <footer>
+        <p>&copy; 2023 Công ty của bạn. Mọi quyền được bảo lưu.</p>
+    </footer>
+</body>
+
+</html>

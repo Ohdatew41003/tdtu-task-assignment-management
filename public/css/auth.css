@@ -1,32 +1,178 @@
-/* CSS cho trang đăng nhập/đăng ký */
+/* public/css/auth.css */
+
+:root {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --error-color: #ef4444;
+  --success-color: #22c55e;
+  --text-color: #1e293b;
+  --bg-blur: rgba(255, 255, 255, 0.95);
+}
+
+/* Base styles */
 .auth-container {
-  max-width: 400px;
-  margin: 2rem auto;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   padding: 2rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
 }
 
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input {
+/* Auth card */
+.auth-card {
+  background: var(--bg-blur);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  max-width: 480px;
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transform: translateY(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.alert.error {
-  color: #dc3545;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #dc3545;
-  border-radius: 4px;
+.auth-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
+
+/* Header */
+.auth-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.auth-header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, var(--primary-color), #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-header p {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Form elements */
+.auth-form .input-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.auth-form label {
+  display: block;
+  font-size: 0.875rem;
+  color: #475569;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8fafc;
+}
+
+.auth-form input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background: white;
+}
+
+/* Button styles */
+.auth-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.auth-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.auth-btn:active {
+  transform: translateY(0);
+}
+
+/* Utility classes */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 2rem 0;
+  color: #94a3b8;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-divider span {
+  padding: 0 1rem;
+}
+
+.social-auth {
+  display: grid;
+  gap: 1rem;
+}
+
+.social-btn {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+/* Error states */
+.input-error {
+  border-color: var(--error-color) !important;
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .auth-container {
+    padding: 1.5rem;
+  }
+
+  .auth

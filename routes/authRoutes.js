@@ -21,6 +21,6 @@ router.get('/register', (req, res) => {
 router.post('/register', register);
 
 // Logout
-router.get('/logout', logout);
+router.post('/logout', logout);
 
 module.exports = router;

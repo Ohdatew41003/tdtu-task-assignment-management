@@ -54,27 +54,33 @@ const login = async (req, res) => {
         const token = generateToken(user);
         user.lastLoginTime = Date.now();
         await user.save();
-
-        res.json({
-            token,
-            user: {
-                _id: user._id,
-                username: user.username,
-                roles: user.roles,
-                fullName: user.fullName,
-                position: user.position,
-                //department: user.department
-            }
-        });
+        const roles = user.roles;
+        if (roles.includes('ADMIN')) {
+            return res.render('admin/index', { user });
+        } else if (roles.includes('HEAD_OF_DEPARTMENT') || roles.includes('DEPUTY_HEAD')) {
+            return res.render('headOfDepartment/index', { user });
+        } else if (roles.includes('DIVISION_HEAD')) {
+            return res.render('headOfSubject/index', { user });
+        } else if (roles.includes('COORDINATOR')) {
+            return res.render('taskContactPerson/index', { user });
+        } else {
+            return res.render('home/index', { user }); // Trang mặc định nếu không có quyền đặc biệt
+        }
 
     } catch (error) {
-        console.error(error);  // Log lỗi chi tiết
+        console.error(error);
         res.status(500).json({ error: 'Lỗi hệ thống' });
     }
 };
-
 const logout = (req, res) => {
-    res.json({ message: 'Đăng xuất thành công' });
+    try {
+        res.clearCookie('token');  // 'token' là tên cookie chứa JWT
+        res.redirect('/login');  // Sau khi đăng xuất, chuyển hướng về trang đăng nhập
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi hệ thống khi đăng xuất' });
+    }
 };
+
 
 module.exports = { login, logout, register };

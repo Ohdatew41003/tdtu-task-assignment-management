@@ -1,17 +1,19 @@
+// D:\DACNTT\server.js
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const connectDB = require('./config/db');
+
+// Routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const departmentRoutes = require('./routes/departmentRoutes');
-const path = require('path');
-const app = express();
+const homeRoutes = require('./routes/homeRoutes');
+
+// Models
 const User = require('./models/User');
-// Thêm vào server.js
 
-
-// Khởi tạo admin
-User.createAdminIfNotExists().catch(console.error);
+const app = express();
 
 // Middleware
 app.use(express.json());
@@ -31,11 +33,15 @@ app.set('views', path.join(__dirname, 'views'));  // Đảm bảo thư mục vie
 // Kết nối database
 connectDB();
 
+// Khởi tạo admin nếu chưa tồn tại
+User.createAdminIfNotExists().catch(console.error);
+
 // Routes
-app.use('/', authRoutes); // Sử dụng routes với base path là '/'
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/departments', departmentRoutes);
+app.use('/', authRoutes);  // Auth routes ở base path '/'
+app.use(homeRoutes);       // Home routes
+app.use('/api/auth', authRoutes);  // API auth routes
+app.use('/api/users', userRoutes);  // API users routes
+app.use('/api/departments', departmentRoutes);  // API departments routes
 
 // Bắt đầu server
 const PORT = process.env.PORT || 5000;
