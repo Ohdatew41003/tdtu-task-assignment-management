@@ -13,10 +13,10 @@
         <h1>Chào mừng, {{user.fullName}}!</h1>
         <nav>
             <ul>
-                <li><a href="/admin">Trang Admin</a></li>
+                <li><a href="/">Trang Admin</a></li>
                 <li><a href="/profile">Hồ Sơ</a></li>
                 <li><a href="/settings">Cài Đặt</a></li>
-                <!-- Nút thoát với form -->
+                <li><a href="/admin/users">Quản lý người dùng</a></li>
                 <li>
                     <form action="/logout" method="POST">
                         <button type="submit">Đăng Xuất</button>
@@ -25,10 +25,108 @@
             </ul>
         </nav>
     </header>
+
     <main>
-        <h2>Trang Admin</h2>
-        <p>Chào mừng bạn đến với trang quản lý Admin.</p>
+        <h2>Trang Quản Lý Người Dùng</h2>
+
+        <!-- Nút Tạo Tài Khoản Mới -->
+        <button id="createAccountBtn">Tạo tài khoản mới</button>
+
+        <!-- Bảng Danh Sách Người Dùng -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Đơn vị</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                <tr>
+                    <td>{{fullName}}</td>
+                    <td>{{username}}</td>
+                    <td>{{email}}</td>
+                    <td>{{unit}}</td>
+                    <td>{{roles}}</td>
+                    <td>{{status}}</td>
+                    <td>
+                        <button>Edit</button>
+                        <button>Delete</button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Form Tạo Tài Khoản -->
+        <div id="createAccountForm" style="display:none;">
+            <h3>Tạo Tài Khoản Mới</h3>
+            <form action="/admin/users/create" method="POST">
+                <!-- Phần 1: Thông tin cơ bản -->
+                <fieldset>
+                    <legend>Thông tin cơ bản</legend>
+                    <label for="fullName">Họ và tên:</label>
+                    <input type="text" name="fullName" required>
+                    <label for="username">Tên đăng nhập:</label>
+                    <input type="text" name="username" required>
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" required>
+                    <label for="phone">Số điện thoại (tuỳ chọn):</label>
+                    <input type="text" name="phone">
+                    <label for="password">Mật khẩu:</label>
+                    <input type="password" name="password">
+                </fieldset>
+
+                <!-- Phần 2: Thông tin đơn vị và vị trí -->
+                <fieldset>
+                    <legend>Thông tin đơn vị và vị trí</legend>
+                    <label for="unit">Đơn vị:</label>
+                    <select name="unit" required>
+                        <option value="Khoa Công Nghệ Thông Tin">Khoa Công Nghệ Thông Tin</option>
+                        <option value="Khoa Điện Tử Viễn Thông">Khoa Điện Tử Viễn Thông</option>
+                    </select>
+                    <label for="position">Vị trí:</label>
+                    <input type="text" name="position">
+                    <label for="manager">Quản lý trực tiếp:</label>
+                    <select name="manager">
+                        <option value="">Chọn người quản lý</option>
+                        {{#each users}}
+                        <option value="{{_id}}">{{fullName}}</option>
+                        {{/each}}
+                    </select>
+                </fieldset>
+
+                <!-- Phần 3: Phân quyền -->
+                <fieldset>
+                    <legend>Phân quyền</legend>
+                    <label for="roles">Vai trò:</label>
+                    <select name="roles" multiple required>
+                        <option value="ADMIN">Ban lãnh đạo khoa</option>
+                        <option value="DEPARTMENT_HEAD">Trưởng bộ môn</option>
+                        <option value="LECTURER">Giảng viên</option>
+                        <option value="STAFF">Cán bộ</option>
+                        <option value="PROJECT_HEAD">Trưởng nhóm dự án</option>
+                    </select>
+                    <label for="permissions">Quyền hạn bổ sung:</label>
+                    <input type="text" name="permissions">
+                </fieldset>
+
+                <button type="submit">Tạo tài khoản</button>
+            </form>
+        </div>
     </main>
+
+    <script>
+        document.getElementById('createAccountBtn').addEventListener('click', function () {
+            const form = document.getElementById('createAccountForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
 </body>
 
 </html>

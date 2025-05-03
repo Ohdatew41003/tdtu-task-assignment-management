@@ -1,3 +1,4 @@
+//D:\DACNTT\routes\userRoutes.js
 const express = require('express');
 const router = express.Router();
 const { authenticate, hasRole } = require('../middleware/auth');

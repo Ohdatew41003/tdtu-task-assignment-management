@@ -1,0 +1,35 @@
+<!-- views/timeline.hbs -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Tiến Độ</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Timeline Tiến Độ</h1>
+        <nav>
+            <a href="/">Trang Chủ</a>
+            <a href="/dashboard">Dashboard</a>
+        </nav>
+    </header>
+
+    <section class="timeline">
+        <h2>Timeline Tiến Độ Công Việc</h2>
+        <div class="timeline-items">
+            {{#each tasks}}
+            <div class="timeline-item">
+                <h3>{{this.title}}</h3>
+                <p>Tiến độ: {{this.progress}}%</p>
+                <div class="progress-bar" style="width: {{this.progress}}%"></div>
+            </div>
+            {{/each}}
+        </div>
+    </section>
+</body>
+
+</html>

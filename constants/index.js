@@ -5,7 +5,8 @@ const Role = Object.freeze({
     DEPUTY_HEAD: 'DEPUTY_HEAD',
     DIVISION_HEAD: 'DIVISION_HEAD',
     COORDINATOR: 'COORDINATOR',
-    STAFF: 'STAFF'
+    STAFF: 'STAFF',
+    USER: 'USER'
 });
 
 // User status definitions
@@ -22,7 +23,8 @@ const Position = Object.freeze({
     DEPUTY_HEAD: 'DEPUTY_HEAD',
     DIVISION_HEAD: 'DIVISION_HEAD',
     LECTURER: 'LECTURER',
-    STAFF: 'STAFF'
+    STAFF: 'STAFF',
+    USER: 'USER'
 });
 
 module.exports = {

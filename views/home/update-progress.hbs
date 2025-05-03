@@ -1,0 +1,55 @@
+<!-- views/update-progress.hbs -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập Nhật Tiến Độ</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Cập Nhật Tiến Độ Công Việc</h1>
+        <nav>
+            <a href="/">Trang Chủ</a>
+            <a href="/dashboard">Dashboard</a>
+            <form action="/logout" method="POST" style="display:inline;">
+                <button type="submit"
+                    style="background:none; border:none; color:white; font-weight:bold; cursor:pointer;">Đăng
+                    Xuất</button>
+            </form>
+        </nav>
+    </header>
+
+    <section class="update-progress">
+        <h2>Chọn công việc và cập nhật tiến độ</h2>
+        <form action="/update-progress" method="POST">
+            <label for="task">Chọn công việc:</label>
+            <select id="task" name="task">
+                {{!-- Dữ liệu giả lập --}}
+                <option value="task01">Tổng hợp đề cương học phần CNTT</option>
+                <option value="task02">Soạn thảo báo cáo kiểm định chất lượng học phần</option>
+                <option value="task03">Cập nhật nội dung giảng dạy môn Phát triển Web</option>
+                <option value="task04">Tổ chức hội thảo chuyên môn tháng 5</option>
+                <option value="task05">Hoàn tất chấm điểm khóa luận tốt nghiệp</option>
+                <option value="task06">Thống kê phản hồi sinh viên kỳ 2/2024</option>
+                <option value="task07">Phối hợp triển khai dự án hợp tác doanh nghiệp</option>
+                <option value="task08">Báo cáo tình trạng học phần không đạt</option>
+                <option value="task09">Rà soát giờ giảng giảng viên bộ môn</option>
+                <option value="task10">Hoàn thiện đề cương chi tiết môn học mới</option>
+            </select>
+
+            <label for="progress">Tiến độ hoàn thành (%):</label>
+            <input type="number" id="progress" name="progress" min="0" max="100" required>
+
+            <label for="note">Ghi chú (tuỳ chọn):</label>
+            <textarea id="note" name="note" rows="4" placeholder="Nhập ghi chú nếu có..."></textarea>
+
+            <button type="submit">Cập Nhật</button>
+        </form>
+    </section>
+</body>
+
+</html>

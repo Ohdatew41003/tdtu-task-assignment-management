@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý người dùng</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body>
+    <header>
+        <h1>Xin chào, {{user.fullName}}!</h1>
+        <nav>
+            <ul>
+                <li><a href="/admin">Trang Admin</a></li>
+                <li><a href="/profile">Hồ Sơ</a></li>
+                <li><a href="/settings">Cài Đặt</a></li>
+                <li><a href="/admin/users">Quản lý người dùng</a></li>
+                <li>
+                    <form action="/logout" method="POST">
+                        <button type="submit">Đăng Xuất</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Trang Quản Lý Người Dùng</h2>
+
+        <button id="createAccountBtn">Tạo tài khoản mới</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Đơn vị</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                <tr>
+                    <td>{{fullName}}</td>
+                    <td>{{username}}</td>
+                    <td>{{email}}</td>
+                    <td>{{unit}}</td>
+                    <td>{{roles}}</td>
+                    <td>{{status}}</td>
+                    <td>
+                        <button>Edit</button>
+                        <button>Delete</button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <div id="createAccountForm" style="display:none;">
+            <h3>Tạo Tài Khoản Mới</h3>
+            <form action="/api/users" method="POST">
+                <!-- Form tạo tài khoản (giống form bạn đã viết trước đó) -->
+                <!-- ... -->
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('createAccountBtn').addEventListener('click', function () {
+            const form = document.getElementById('createAccountForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+<!-- views/upload-report.hbs -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tải Lên Báo Cáo</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Tải Lên Báo Cáo Công Việc</h1>
+        <nav>
+            <a href="/">Trang Chủ</a>
+            <a href="/dashboard">Dashboard</a>
+        </nav>
+    </header>
+
+    <section class="upload-report">
+        <h2>Tải Lên Tài Liệu Báo Cáo</h2>
+        <form action="/upload-report" method="POST" enctype="multipart/form-data">
+            <label for="task">Chọn công việc</label>
+            <select id="task" name="task">
+                {{#each tasks}}
+                <option value="{{this.id}}">{{this.title}}</option>
+                {{/each}}
+            </select>
+            <label for="file">Tải Lên Báo Cáo</label>
+            <input type="file" id="file" name="file" required>
+            <button type="submit">Tải Lên</button>
+        </form>
+    </section>
+</body>
+
+</html>

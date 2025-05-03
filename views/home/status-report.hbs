@@ -1,0 +1,46 @@
+<!-- views/status-report.hbs -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Tình Trạng Công Việc</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Báo Cáo Tình Trạng Công Việc</h1>
+        <nav>
+            <a href="/">Trang Chủ</a>
+            <a href="/dashboard">Dashboard</a>
+        </nav>
+    </header>
+
+    <section class="status-report">
+        <h2>Tình Trạng Các Công Việc</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên Công Việc</th>
+                    <th>Tiến Độ</th>
+                    <th>Trạng Thái</th>
+                    <th>Deadline</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each tasks}}
+                <tr>
+                    <td>{{this.title}}</td>
+                    <td>{{this.progress}}%</td>
+                    <td>{{this.status}}</td>
+                    <td>{{this.deadline}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </section>
+</body>
+
+</html>

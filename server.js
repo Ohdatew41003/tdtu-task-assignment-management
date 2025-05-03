@@ -3,18 +3,19 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const connectDB = require('./config/db');
-
+const cookieParser = require('cookie-parser');
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const departmentRoutes = require('./routes/departmentRoutes');
 const homeRoutes = require('./routes/homeRoutes');
-
+const adminRoutes = require('./routes/adminRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 // Models
 const User = require('./models/User');
 
 const app = express();
-
+app.use(cookieParser());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Đảm bảo bạn có thể lấy dữ liệu từ form
@@ -42,7 +43,8 @@ app.use(homeRoutes);       // Home routes
 app.use('/api/auth', authRoutes);  // API auth routes
 app.use('/api/users', userRoutes);  // API users routes
 app.use('/api/departments', departmentRoutes);  // API departments routes
-
+app.use(adminRoutes); // gắn vào root path
+app.use('/api/tasks', taskRoutes);
 // Bắt đầu server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

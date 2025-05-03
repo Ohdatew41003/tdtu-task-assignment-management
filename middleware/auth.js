@@ -2,65 +2,36 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Middleware xác thực người dùng qua token
-const authenticate = (...roles) => {
-  return async (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1]; // Lấy token từ header
+const authenticate = async (req, res, next) => {
+  const token = req.cookies.token || req.headers.authorization?.split(' ')[1]; // Lấy token từ cookie hoặc header
 
-    if (!token) {
-      return res.status(401).json({ error: 'Unauthorized - Không có token' });
-    }
-
-    try {
-      // Giải mã token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Kiểm tra user có tồn tại trong cơ sở dữ liệu không
-      const user = await User.findById(decoded.userId);
-      if (!user || user.status === 'INACTIVE') {
-        return res.status(401).json({ error: 'Tài khoản không tồn tại hoặc đã bị vô hiệu hóa' });
-      }
-
-      // Gán thông tin người dùng vào request để có thể truy cập ở các middleware khác
-      req.user = {
-        _id: user._id,
-        username: user.username,
-        roles: user.roles,
-        fullName: user.fullName,
-        department: user.department
-      };
-
-      // Kiểm tra vai trò của người dùng có hợp lệ không
-      if (roles.length && !roles.some(role => req.user.roles.includes(role))) {
-        return res.status(403).json({
-          error: `Yêu cầu quyền: ${roles.join(', ')}`
-        });
-      }
-
-      next(); // Tiếp tục đến middleware hoặc route handler tiếp theo
-    } catch (error) {
-      res.status(401).json({ error: 'Token không hợp lệ' });
-    }
-  };
-};
-
-
-// Middleware kiểm tra quyền Admin
-const isAdmin = (req, res, next) => {
-  // Kiểm tra xem người dùng có vai trò 'ADMIN' không
-  if (req.user?.roles?.includes('ADMIN')) {
-    return next(); // Nếu có, cho phép tiếp tục đến middleware hoặc route handler tiếp theo
+  if (!token) {
+    return res.status(401).json({ error: 'Không có token, yêu cầu xác thực người dùng.' });
   }
-  res.status(403).json({ error: 'Yêu cầu quyền ADMIN' }); // Nếu không, trả về lỗi 403
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Giải mã token và xác minh tính hợp lệ
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ error: 'Người dùng không tồn tại.' });
+    }
+
+    req.user = user; // Lưu thông tin người dùng vào request để các route khác có thể sử dụng
+    next(); // Tiếp tục xử lý request
+  } catch (error) {
+    console.error('Lỗi khi xác thực token:', error);
+    return res.status(401).json({ error: 'Token không hợp lệ hoặc đã hết hạn.' });
+  }
 };
 
-// Middleware kiểm tra quyền người dùng theo vai trò
+
 const hasRole = (...roles) => {
   return (req, res, next) => {
     // Kiểm tra xem người dùng có một trong các vai trò được chỉ định trong tham số 'roles'
     if (!req.user?.roles?.some(role => roles.includes(role))) {
       return res.status(403).json({
-        error: `Yêu cầu một trong các quyền: ${roles.join(', ')}` // Nếu không có quyền, trả về lỗi 403
+        error: `Yêu cầu một trong các quyền: ${roles.join(', ')}`
       });
     }
     next(); // Nếu có quyền, cho phép tiếp tục
@@ -69,6 +40,5 @@ const hasRole = (...roles) => {
 
 module.exports = {
   authenticate,
-  isAdmin,
   hasRole
 };

@@ -70,6 +70,14 @@ const login = async (req, res) => {
         const token = generateToken(user);
         user.lastLoginTime = Date.now();
         await user.save();
+        console.log('Token vừa tạo:', token); // 👉 In token ra terminal
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // chỉ sử dụng secure nếu môi trường là production
+            maxAge: 3600000, // 1 giờ
+            sameSite: 'Strict', // Giới hạn cookie chỉ có thể được gửi cùng domain
+        });
 
         const roles = user.roles;
         // Điều hướng đến trang tương ứng theo role
@@ -84,7 +92,7 @@ const login = async (req, res) => {
         } else if (roles.includes('STAFF')) {
             return res.render('staff/index', { user });
         } else {
-            return res.render('home/index', { user }); // Trang mặc định
+            return res.render('home/upload-report', { user }); // Trang mặc định
         }
 
     } catch (error) {
