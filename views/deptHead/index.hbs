@@ -1,0 +1,13 @@
+<h1 class="text-2xl font-bold mb-4 text-blue-600">Dashboard tổng quan - Ban lãnh đạo khoa</h1>
+<p class="mb-4">Chào {{user.name}}, bạn đang xem tổng quan về tình hình công việc toàn khoa.</p>
+
+<ul class="list-disc pl-5 space-y-2">
+    <li>Tổng số công việc đang thực hiện: {{overview.totalTasks}}</li>
+    <li>Công việc đã hoàn thành: {{overview.completedTasks}}</li>
+    <li>Số lượng giảng viên tham gia: {{overview.staffCount}}</li>
+    <li>
+        <form action="/logout" method="POST">
+            <button type="submit">Đăng Xuất</button>
+        </form>
+    </li>
+</ul>

@@ -1,0 +1,10 @@
+<ul class="list-disc pl-5">
+    {{#each members}}
+    <li>{{this.name}} - {{this.role}}</li>
+    {{/each}}
+    <li class="mt-6">
+        <form action="/logout" method="POST">
+            <button type="submit" class="text-red-600 hover:underline">Đăng Xuất</button>
+        </form>
+    </li>
+</ul>

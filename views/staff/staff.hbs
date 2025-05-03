@@ -1,0 +1,27 @@
+<h1 class="text-2xl font-bold mb-4 text-purple-600">Công việc được giao</h1>
+<p class="mb-4">Xin chào {{user.name}}, dưới đây là danh sách công việc bạn được phân công.</p>
+
+<table class="w-full table-auto border border-gray-300">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="px-4 py-2">Tên công việc</th>
+            <th class="px-4 py-2">Hạn chót</th>
+            <th class="px-4 py-2">Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each tasks}}
+        <tr>
+            <td class="border px-4 py-2">{{this.title}}</td>
+            <td class="border px-4 py-2">{{this.deadline}}</td>
+            <td class="border px-4 py-2">{{this.status}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+<li class="mt-6">
+    <form action="/logout" method="POST">
+        <button type="submit" class="text-red-600 hover:underline">Đăng Xuất</button>
+    </form>
+</li>

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { USER_STATUS } = require('../constants');
+const { generateOtp, sendOtpToUser } = require('../utils/opt');
 const register = async (req, res) => {
     res.json({ message: 'Tính năng đăng ký chưa được hỗ trợ' });
 };
@@ -22,56 +23,95 @@ const generateToken = (user) => {
 
 const login = async (req, res) => {
     try {
-        // Kiểm tra req.body
-        console.log('Request Body:', req.body);  // Debug xem có dữ liệu từ form
-        // Validate request body
-        if (!req.body.username || !req.body.password) {
-            return res.status(400).json({ error: 'Vui lòng điền đầy đủ thông tin đăng nhập' });
-        }
+        const { username, password, otp } = req.body; // Thêm trường otp để người dùng nhập mã OTP
 
-        const { username, password } = req.body;
-        console.log('Username:', username);  // Debug thông tin đầu vào
+        // Kiểm tra dữ liệu đầu vào
+        if (!username || !password) {
+            return res.render('auth/login', { error: 'Vui lòng điền đầy đủ thông tin đăng nhập' });
+        }
 
         const user = await User.findOne({ username }).select('+password');
         if (!user) {
-            console.log('User not found');  // Debug khi không tìm thấy người dùng
-            return res.status(401).json({ error: 'Thông tin đăng nhập không hợp lệ' });
+            return res.render('auth/login', { error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
         }
 
-        console.log('Password:', password);  // Debug mật khẩu đầu vào
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            console.log('Password mismatch');  // Debug khi mật khẩu không khớp
-            return res.status(401).json({ error: 'Mật khẩu không chính xác' });
+            return res.render('auth/login', { error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
         }
 
-        // Kiểm tra trạng thái tài khoản
         if (user.status !== 'ACTIVE') {
-            console.log('User is inactive');  // Debug khi tài khoản không hoạt động
-            return res.status(403).json({ error: 'Tài khoản đã bị khóa hoặc chưa kích hoạt' });
+            return res.render('auth/login', { error: 'Tài khoản đã bị vô hiệu hóa, vui lòng liên hệ quản trị viên' });
         }
 
+        /** Đăng nhập thành công, kiểm tra vai trò yêu cầu xác thực hai yếu tố
+        const roles = user.roles;
+
+        // Nếu là quản trị viên hoặc ban lãnh đạo khoa, yêu cầu 2FA
+        if (roles.includes('ADMIN') || roles.includes('DEPT_HEAD') || roles.includes('DEPUTY_HEAD')) {
+            // Gửi mã OTP đến email hoặc số điện thoại của người dùng
+            const otpCode = generateOtp(); // Hàm này tạo mã OTP ngẫu nhiên
+            await sendOtpToUser(user, otpCode); // Gửi mã OTP qua email hoặc SMS
+
+            // Lưu OTP tạm thời trong database (hoặc cache) để kiểm tra sau
+            user.otp = otpCode;
+            await user.save();
+
+            // Hiển thị form yêu cầu nhập OTP
+            return res.render('auth/verifyOtp', { user });
+        }
+
+        // Nếu không yêu cầu 2FA, tiếp tục như cũ
         const token = generateToken(user);
         user.lastLoginTime = Date.now();
         await user.save();
+        */
+        // Đăng nhập thành công
+        const token = generateToken(user);
+        user.lastLoginTime = Date.now();
+        await user.save();
+
         const roles = user.roles;
+        // Điều hướng đến trang tương ứng theo role
         if (roles.includes('ADMIN')) {
             return res.render('admin/index', { user });
-        } else if (roles.includes('HEAD_OF_DEPARTMENT') || roles.includes('DEPUTY_HEAD')) {
-            return res.render('headOfDepartment/index', { user });
+        } else if (roles.includes('DEPT_HEAD') || roles.includes('DEPUTY_HEAD')) {
+            return res.render('deptHead/index', { user });
         } else if (roles.includes('DIVISION_HEAD')) {
-            return res.render('headOfSubject/index', { user });
+            return res.render('divisionHead/index', { user });
         } else if (roles.includes('COORDINATOR')) {
-            return res.render('taskContactPerson/index', { user });
+            return res.render('coordinator/index', { user });
+        } else if (roles.includes('STAFF')) {
+            return res.render('staff/index', { user });
         } else {
-            return res.render('home/index', { user }); // Trang mặc định nếu không có quyền đặc biệt
+            return res.render('home/index', { user }); // Trang mặc định
         }
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Lỗi hệ thống' });
+        console.error('Lỗi hệ thống:', error);
+        return res.render('auth/login', { error: 'Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.' });
     }
 };
+
+// Hàm kiểm tra mã OTP
+const verifyOtp = async (req, res) => {
+    const { otp, userId } = req.body;
+
+    // Kiểm tra xem mã OTP có khớp với mã đã lưu trong DB không
+    const user = await User.findById(userId);
+    if (!user || user.otp !== otp) {
+        return res.render('auth/verifyOtp', { error: 'Mã OTP không đúng, vui lòng thử lại.' });
+    }
+
+    // Nếu mã OTP đúng, tiếp tục đăng nhập và tạo token
+    const token = generateToken(user);
+    user.lastLoginTime = Date.now();
+    user.otp = null; // Xóa OTP sau khi xác thực thành công
+    await user.save();
+
+    return res.render('home/index', { user });
+};
+
 const logout = (req, res) => {
     try {
         res.clearCookie('token');  // 'token' là tên cookie chứa JWT
@@ -83,4 +123,4 @@ const logout = (req, res) => {
 };
 
 
-module.exports = { login, logout, register };
+module.exports = { login, logout, register, verifyOtp };

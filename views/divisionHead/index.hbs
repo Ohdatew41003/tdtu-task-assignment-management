@@ -1,0 +1,14 @@
+<!-- ... nội dung danh sách công việc -->
+
+<ul class="divide-y">
+    {{#each tasks}}
+    <li class="py-2">
+        <strong>{{this.title}}</strong> - Trạng thái: {{this.status}}
+    </li>
+    {{/each}}
+    <li class="mt-6">
+        <form action="/logout" method="POST">
+            <button type="submit" class="text-red-600 hover:underline">Đăng Xuất</button>
+        </form>
+    </li>
+</ul>

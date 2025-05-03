@@ -1,7 +1,7 @@
 //D:\DACNTT\constants\index.js
 const Role = Object.freeze({
     ADMIN: 'ADMIN',
-    DEPARTMENT_HEAD: 'DEPARTMENT_HEAD',
+    DEPT_HEAD: 'DEPT_HEAD',
     DEPUTY_HEAD: 'DEPUTY_HEAD',
     DIVISION_HEAD: 'DIVISION_HEAD',
     COORDINATOR: 'COORDINATOR',
@@ -18,7 +18,7 @@ const UserStatus = Object.freeze({
 
 // Position definitions
 const Position = Object.freeze({
-    DEPARTMENT_HEAD: 'DEPARTMENT_HEAD',
+    DEPT_HEAD: 'DEPT_HEAD',
     DEPUTY_HEAD: 'DEPUTY_HEAD',
     DIVISION_HEAD: 'DIVISION_HEAD',
     LECTURER: 'LECTURER',
