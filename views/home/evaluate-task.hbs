@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Đánh giá công việc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        section {
+            padding: 20px;
+        }
+
+        .upload-report {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            max-width: 600px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-report h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .upload-report label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .upload-report select,
+        .upload-report textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+
+        .upload-report button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-report button:hover {
+            background-color: #218838;
+        }
+
+        .history {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Đánh Giá Công Việc</h1>
+    </header>
+
+    <section>
+        <div class="upload-report">
+            <h2>Form Đánh Giá</h2>
+
+            <form>
+                <label for="taskId">Chọn công việc</label>
+                <select id="taskId" name="taskId">
+                    <option value="1">Tổng hợp kết quả học tập sinh viên</option>
+                    <option value="2">Báo cáo tình hình nghiên cứu khoa học giảng viên</option>
+                    <option value="3">Xây dựng nội dung học phần mới</option>
+                    <option value="4">Tổ chức buổi báo cáo seminar</option>
+                    <option value="5">Cập nhật tiến độ khóa luận tốt nghiệp</option>
+                </select>
+
+                <label for="comment">Nhận xét</label>
+                <textarea id="comment" name="comment"
+                    rows="4">Công việc được thực hiện đầy đủ, đúng thời hạn.</textarea>
+
+                <label for="rating">Mức độ hoàn thành</label>
+                <select id="rating" name="rating">
+                    <option value="0">0 - Không hoàn thành</option>
+                    <option value="1">1 - Hoàn thành một phần</option>
+                    <option value="2" selected>2 - Hoàn thành</option>
+                    <option value="3">3 - Hoàn thành tốt</option>
+                    <option value="4">4 - Xuất sắc</option>
+                </select>
+
+                <button type="submit">Gửi đánh giá</button>
+            </form>
+        </div>
+
+        <div class="history">
+            <h2>Lịch Sử Đánh Giá (Dữ liệu giả)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Công việc</th>
+                        <th>Người đánh giá</th>
+                        <th>Nhận xét</th>
+                        <th>Mức độ</th>
+                        <th>Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tổng hợp kết quả học tập sinh viên</td>
+                        <td>Nguyễn Văn A</td>
+                        <td>Hoàn thành đầy đủ đúng hạn</td>
+                        <td>3 - Hoàn thành tốt</td>
+                        <td>09/05/2025 14:30</td>
+                    </tr>
+                    <tr>
+                        <td>Báo cáo nghiên cứu khoa học</td>
+                        <td>Trần Thị B</td>
+                        <td>Chưa đủ minh chứng</td>
+                        <td>1 - Hoàn thành một phần</td>
+                        <td>08/05/2025 10:15</td>
+                    </tr>
+                    <tr>
+                        <td>Khóa luận tốt nghiệp</td>
+                        <td>Phạm Gia Huy</td>
+                        <td>Có tiến độ nhưng thiếu chi tiết</td>
+                        <td>2 - Hoàn thành</td>
+                        <td>07/05/2025 16:45</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</body>
+
+</html>

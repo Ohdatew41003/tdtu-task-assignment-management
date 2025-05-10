@@ -92,7 +92,7 @@ const login = async (req, res) => {
         } else if (roles.includes('STAFF')) {
             return res.render('staff/index', { user });
         } else {
-            return res.render('home/upload-report', { user }); // Trang mặc định
+            return res.render('home/evaluate-task', { user }); // Trang mặc định
         }
 
     } catch (error) {
