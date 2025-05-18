@@ -1,17 +1,21 @@
-// routes/taskRoutes.js
-const express = require('express');
-const multer = require('multer');
-const taskController = require('../controllers/taskController');
-
-// Cấu hình multer để xử lý file upload
-const upload = multer({ dest: 'uploads/reports/' });
-
+const express = require("express");
 const router = express.Router();
+const taskController = require("../controllers/taskController");
 
-// Các API công việc
-router.put('/:id/status', taskController.updateStatus);
-router.post('/:id/progress', taskController.addProgress);
-router.post('/:id/report', upload.single('file'), taskController.uploadReport);
-router.get('/:id/timeline', taskController.getTimeline);
+
+
+// GET /task
+router.get('/task', (req, res) => {
+    res.render('task/task', {
+        title: 'Quản lý đầu việc'
+    });
+});
+
+module.exports = router;
+
+router.get("/get", taskController.getTasks);
+router.post("/create", taskController.createTask);
+router.put("/update/:id", taskController.updateTask);
+router.delete("/delete/:id", taskController.deleteTask);
 
 module.exports = router;

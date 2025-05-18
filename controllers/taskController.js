@@ -1,88 +1,57 @@
-// controllers/taskController.js
-const Task = require('../models/TaskModel');
-const path = require('path');
+import { Task } from '../models/task.js';
 
-// Cập nhật trạng thái công việc
-exports.updateStatus = async (req, res) => {
+export const getTasks = async (req, res) => {
     try {
-        const { status } = req.body;
-        const { id } = req.params;
-
-        const task = await Task.findById(id);
-        if (!task) {
-            return res.status(404).json({ message: "Công việc không tồn tại" });
-        }
-
-        task.status = status;
-        await task.save();
-
-        return res.status(200).json({ message: "Trạng thái công việc đã được cập nhật", task });
+        const tasks = await Task.find();
+        res.json(tasks);
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Lỗi server" });
     }
 };
 
-// Lưu tiến độ công việc
-exports.addProgress = async (req, res) => {
+export const createTask = async (req, res) => {
     try {
-        const { progress, note, updatedBy } = req.body;
-        const { id } = req.params;
-
-        const task = await Task.findById(id);
-        if (!task) {
-            return res.status(404).json({ message: "Công việc không tồn tại" });
-        }
-
-        task.progressHistory.push({
-            progress,
-            note,
-            updatedBy,
-            timestamp: Date.now()
-        });
-
-        await task.save();
-
-        return res.status(200).json({ message: "Đã lưu tiến độ", task });
+        const newTask = new Task(req.body);
+        await newTask.save();
+        res.status(201).json(newTask);
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
-// Upload báo cáo công việc
-exports.uploadReport = async (req, res) => {
+
+export const updateTask = async (req, res) => {
     try {
-        const { id } = req.params;
-        const task = await Task.findById(id);
-        if (!task) {
-            return res.status(404).json({ message: "Công việc không tồn tại" });
-        }
+        const updatedTask = await Task.findOneAndUpdate(
+            { taskId: req.params.id },  // tìm theo taskId, không phải _id
+            req.body,
+            { new: true }
+        );
 
-        const file = req.file;
-        task.reports.push({
-            filename: file.originalname,
-            path: file.path,
-            uploadedAt: Date.now()
-        });
-
-        await task.save();
-
-        return res.status(200).json({ message: "Tải lên báo cáo thành công", file });
+        if (!updatedTask) return res.status(404).json({ message: "Không tìm thấy task" });
+        res.json(updatedTask);
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
-// Lấy timeline tiến độ công việc
-exports.getTimeline = async (req, res) => {
+export const deleteTask = async (req, res) => {
     try {
-        const { id } = req.params;
-        const task = await Task.findById(id);
-        if (!task) {
-            return res.status(404).json({ message: "Công việc không tồn tại" });
-        }
-
-        return res.status(200).json(task.progressHistory);
+        const deletedTask = await Task.findOneAndDelete({ taskId: req.params.id });
+        if (!deletedTask) return res.status(404).json({ message: "Không tìm thấy task" });
+        res.json({ message: "Đã xóa task" });
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getTaskById = async (req, res) => {
+    try {
+        const task = await Task.findOne({ taskId: req.params.id });
+        if (!task) return res.status(404).json({ message: "Không tìm thấy task" });
+        res.json(task);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

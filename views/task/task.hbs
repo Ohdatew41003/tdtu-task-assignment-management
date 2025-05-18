@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Quản Lý Đầu Việc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        section {
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .form-container,
+        .list-container,
+        .detail-container {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        select,
+        textarea,
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .search-input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Phân loại đầu việc */
+        .task-category-filter {
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Chi tiết đầu việc */
+        .detail-container p {
+            margin: 6px 0;
+        }
+
+        /* Header */
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 15px;
+            background-color: #0056b3;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #003366;
+        }
+
+        nav ul li form button {
+            padding: 10px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li form button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Quản Lý Đầu Việc</h1>
+        <nav>
+            <ul>
+                <li><a href="/api/admin/index">Trang Admin</a></li>
+                <li><a href="/api/admin/get">Quản lý người dùng</a></li>
+
+                <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
+                <li>
+                    <form action="/api/auth/logout" method="POST">
+                        <button type="submit">Đăng Xuất</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <section>
+
+        <!-- Form thêm mới / chỉnh sửa đầu việc -->
+        <div class="form-container" id="addFormContainer">
+            <h2>Thêm Đầu Việc</h2>
+            <form id="addTaskForm">
+                <label for="title">Tiêu đề đầu việc</label>
+                <input type="text" id="title" name="title" placeholder="Nhập tiêu đề..." required maxlength="200" />
+
+                <label for="description">Mô tả</label>
+                <textarea id="description" name="description" rows="4" placeholder="Mô tả chi tiết..."
+                    required></textarea>
+
+                <label for="objective">Mục tiêu (không bắt buộc)</label>
+                <textarea id="objective" name="objective" rows="2" placeholder="Mục tiêu công việc"></textarea>
+
+                <label for="startDate">Ngày bắt đầu</label>
+                <input type="date" id="startDate" name="startDate" required />
+
+                <label for="endDate">Ngày kết thúc</label>
+                <input type="date" id="endDate" name="endDate" required />
+
+                <label for="priority">Độ ưu tiên</label>
+                <select id="priority" name="priority" required>
+                    <option value="Urgent">Khẩn cấp</option>
+                    <option value="High">Cao</option>
+                    <option value="Medium">Trung bình</option>
+                    <option value="Low">Thấp</option>
+                    <option value="Planned">Lên kế hoạch</option>
+                </select>
+
+                <label for="status">Trạng thái</label>
+                <select id="status" name="status" required>
+                    <option value="NotStarted">Chưa bắt đầu</option>
+                    <option value="Assigned">Đã phân công</option>
+                    <option value="InProgress">Đang tiến hành</option>
+                    <option value="Completed">Hoàn thành</option>
+                    <option value="Paused">Tạm dừng</option>
+                    <option value="Cancelled">Hủy</option>
+                </select>
+
+                <label for="deadlineType">Loại deadline</label>
+                <select id="deadlineType" name="deadlineType" required>
+                    <option value="Hard">Cứng</option>
+                    <option value="Soft">Mềm</option>
+                </select>
+
+                <button type="submit">Lưu Đầu Việc</button>
+            </form>
+        </div>
+
+        <!-- Form Sửa (ẩn mặc định) -->
+        <div class="form-container" id="editFormContainer" style="display:none;">
+            <h2>Sửa Đầu Việc</h2>
+            <form id="editTaskForm" data-editing-id="">
+                <!-- Các input giống như trên nhưng id khác để phân biệt -->
+                <label for="titleEdit">Tiêu đề đầu việc</label>
+                <input type="text" id="titleEdit" name="title" placeholder="Nhập tiêu đề..." required maxlength="200" />
+
+                <label for="descriptionEdit">Mô tả</label>
+                <textarea id="descriptionEdit" name="description" rows="4" placeholder="Mô tả chi tiết..."
+                    required></textarea>
+
+                <label for="objectiveEdit">Mục tiêu (không bắt buộc)</label>
+                <textarea id="objectiveEdit" name="objective" rows="2" placeholder="Mục tiêu công việc"></textarea>
+
+                <label for="startDateEdit">Ngày bắt đầu</label>
+                <input type="date" id="startDateEdit" name="startDate" required />
+
+                <label for="endDateEdit">Ngày kết thúc</label>
+                <input type="date" id="endDateEdit" name="endDate" required />
+
+                <label for="priorityEdit">Độ ưu tiên</label>
+                <select id="priorityEdit" name="priority" required>
+                    <option value="Urgent">Khẩn cấp</option>
+                    <option value="High">Cao</option>
+                    <option value="Medium">Trung bình</option>
+                    <option value="Low">Thấp</option>
+                    <option value="Planned">Lên kế hoạch</option>
+                </select>
+
+                <label for="statusEdit">Trạng thái</label>
+                <select id="statusEdit" name="status" required>
+                    <option value="NotStarted">Chưa bắt đầu</option>
+                    <option value="Assigned">Đã phân công</option>
+                    <option value="InProgress">Đang tiến hành</option>
+                    <option value="Completed">Hoàn thành</option>
+                    <option value="Paused">Tạm dừng</option>
+                    <option value="Cancelled">Hủy</option>
+                </select>
+
+                <label for="deadlineTypeEdit">Loại deadline</label>
+                <select id="deadlineTypeEdit" name="deadlineType" required>
+                    <option value="Hard">Cứng</option>
+                    <option value="Soft">Mềm</option>
+                </select>
+
+                <button type="submit">Lưu thay đổi</button>
+                <button type="button" onclick="cancelEdit()">Hủy sửa</button>
+            </form>
+        </div>
+        <!-- Button hiển thị form -->
+        <button id="showTaskCategoryFormBtn">Thêm loại công tác mới</button>
+        <!-- Button bật form -->
+        <button id="btnShowMappingForm">Gán Task vào Loại Công Tác</button>
+        <button id="btnTaskAssignment" class="btn btn-primary" onclick="location.href='/api/taskAssignment'">Phân công
+            công
+            việc</button>
+
+        <!-- Form ẩn mặc định -->
+        <form id="taskCategoryForm" style="display:none; margin-top: 20px;">
+            <label for="name">Tên loại công tác:</label><br />
+            <input type="text" id="name" name="name" required maxlength="100" /><br /><br />
+
+            <label for="description">Mô tả:</label><br />
+            <textarea id="description" name="description"></textarea><br /><br />
+
+            <label for="parentCategoryId">Loại công tác cha (nếu có):</label><br />
+            <input type="text" id="parentCategoryId" name="parentCategoryId"
+                placeholder="Nhập categoryId nếu có" /><br /><br />
+
+            <button type="submit">Lưu loại công tác</button>
+            <button type="button" id="cancelTaskCategoryFormBtn">Hủy</button>
+        </form>
+
+
+
+
+        <!-- Form ẩn ban đầu -->
+        <div id="mappingForm" style="display:none; margin-top: 20px;">
+            <h3>Gán Task vào Loại Công Tác</h3>
+            <form id="formMapping">
+                <label for="taskId">Chọn Task:</label>
+                <select id="taskId" name="taskId" required>
+                    <!-- Option sẽ load từ API -->
+                </select><br><br>
+
+                <label for="categoryId">Chọn Loại Công Tác:</label>
+                <select id="categoryId" name="categoryId" required>
+                    <!-- Option sẽ load từ API -->
+                </select><br><br>
+
+                <button type="submit">Gán</button>
+                <button type="button" id="btnCancel">Hủy</button>
+            </form>
+        </div>
+
+        <!-- Tìm kiếm và lọc đầu việc -->
+        <div class="list-container">
+            <h2>Danh Sách Đầu Việc</h2>
+
+            <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm đầu việc..." />
+
+            <select id="categoryFilter" class="task-category-filter">
+                <option value="">Tất cả loại công tác</option>
+                <option value="Công tác sinh viên">Công tác sinh viên</option>
+                <option value="Học vụ">Học vụ</option>
+                <option value="Khảo thí">Khảo thí</option>
+                <option value="HTDN">HTDN</option>
+            </select>
+
+            <table id="taskTable">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Loại công tác</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Ngày kết thúc</th>
+                        <th>Ưu tiên</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dữ liệu đầu việc sẽ được load động ở đây -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Chi tiết đầu việc -->
+        <div class="detail-container" id="taskDetail" style="display:none;">
+            <h2>Chi Tiết Đầu Việc</h2>
+            <p><strong>Tiêu đề:</strong> <span id="detailTitle"></span></p>
+            <p><strong>Mô tả:</strong> <span id="detailDescription"></span></p>
+            <p><strong>Mục tiêu:</strong> <span id="detailObjective"></span></p>
+            <p><strong>Ngày bắt đầu:</strong> <span id="detailStartDate"></span></p>
+            <p><strong>Ngày kết thúc:</strong> <span id="detailEndDate"></span></p>
+            <p><strong>Ưu tiên:</strong> <span id="detailPriority"></span></p>
+            <p><strong>Trạng thái:</strong> <span id="detailStatus"></span></p>
+            <p><strong>Loại deadline:</strong> <span id="detailDeadlineType"></span></p>
+            <button onclick="document.getElementById('taskDetail').style.display='none';">Đóng</button>
+        </div>
+
+    </section>
+
+    <script>
+
+        const taskTableBody = document.querySelector("#taskTable tbody");
+        const searchInput = document.getElementById("searchInput");
+        const categoryFilter = document.getElementById("categoryFilter");
+
+        let tasks = []; // Biến lưu danh sách đầu việc toàn cục
+        let taskCategoryMappings = []; // lưu mapping taskId -> categoryId
+        let taskCategories = []; // lưu danh sách category
+
+        // Hàm load danh sách mapping
+        async function loadTaskCategoryMapping() {
+            try {
+                const res = await fetch('/api/taskCategoryMapping/get'); // endpoint lấy mapping
+                if (!res.ok) throw new Error('Lỗi khi tải mapping task-category');
+                taskCategoryMappings = await res.json();
+            } catch (error) {
+                alert(error.message);
+            }
+        }// Hàm load danh sách category
+        async function loadTaskCategories() {
+            try {
+                const res = await fetch('/api/taskCategories/get');
+                if (!res.ok) throw new Error('Lỗi khi tải danh sách loại công tác');
+                taskCategories = await res.json();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+        // Lọc danh sách task theo từ khóa và loại công tác
+        function filterTasks() {
+            const keyword = searchInput.value.toLowerCase();
+            const selectedCategoryName = categoryFilter.value;
+
+            const filtered = tasks.filter(task => {
+                const matchKeyword = task.title.toLowerCase().includes(keyword);
+
+                // Lấy mapping theo taskId
+                const mapping = taskCategoryMappings.find(m => m.taskId === task.taskId);
+                // Lấy category từ mapping
+                const category = mapping ? taskCategories.find(c => c.categoryId === mapping.categoryId) : null;
+                const taskCategoryName = category ? category.name : "";
+
+                const matchCategory = selectedCategoryName === "" || taskCategoryName === selectedCategoryName;
+
+                return matchKeyword && matchCategory;
+            });
+
+            renderTaskTable(filtered);
+        }
+
+
+        searchInput.addEventListener("input", filterTasks);
+        categoryFilter.addEventListener("change", filterTasks);
+
+        // Hàm lấy tên category theo taskId
+        function getCategoryNameByTaskId(taskId) {
+            // Tìm mapping theo taskId
+            const mapping = taskCategoryMappings.find(m => m.taskId === taskId);
+            if (!mapping) return "(Chưa có loại)";
+            const category = taskCategories.find(c => c.categoryId === mapping.categoryId);
+            return category ? category.name : "(Chưa có loại)";
+        }
+
+
+        // Cập nhật lại hàm renderTaskTable
+        function renderTaskTable(data) {
+            taskTableBody.innerHTML = "";
+            data.forEach(task => {
+                const taskId = task.taskId || task.id;
+                const categoryName = getCategoryNameByTaskId(taskId); // lấy tên category từ mapping
+                console.log('Tên category của taskId', taskId, 'là:', categoryName);
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${task.title}</td>
+            <td>${categoryName}</td>
+            <td>${task.status}</td>
+            <td>${task.startDate}</td>
+            <td>${task.endDate}</td>
+            <td>${task.priority}</td>
+            <td>
+                <button onclick="editTask('${taskId}')">Sửa</button>
+                <button onclick="deleteTask('${taskId}')">Xóa</button>
+            </td>
+        `;
+
+                taskTableBody.appendChild(tr);
+            });
+        }
+
+        // Xóa task (chưa hoàn thiện)
+        function deleteTask(taskId) {
+            alert("Tính năng xóa đang phát triển.");
+        }
+
+        // Sửa task: hiển thị form và điền dữ liệu
+        function editTask(taskId) {
+            const task = tasks.find(t => (t.taskId || t.id) === taskId);
+            if (!task) return alert("Không tìm thấy đầu việc để sửa");
+
+            // Ẩn form thêm, hiện form sửa
+            document.getElementById('addFormContainer').style.display = 'none';
+            document.getElementById('editFormContainer').style.display = 'block';
+
+            // Điền dữ liệu vào form sửa
+            document.getElementById("titleEdit").value = task.title;
+            document.getElementById("descriptionEdit").value = task.description;
+            document.getElementById("objectiveEdit").value = task.objective || "";
+            document.getElementById("startDateEdit").value = task.startDate;
+            document.getElementById("endDateEdit").value = task.endDate;
+            document.getElementById("priorityEdit").value = task.priority;
+            document.getElementById("statusEdit").value = task.status;
+            document.getElementById("deadlineTypeEdit").value = task.deadlineType || "";
+
+            // Gán id đang sửa vào form
+            document.getElementById("editTaskForm").dataset.editingId = taskId;
+        }
+
+        // Hủy sửa, trở về form thêm
+        function cancelEdit() {
+            document.getElementById('editFormContainer').style.display = 'none';
+            document.getElementById('addFormContainer').style.display = 'block';
+
+            document.getElementById("editTaskForm").reset();
+            document.getElementById("editTaskForm").dataset.editingId = "";
+        }
+
+        // Hiển thị chi tiết task (nếu cần)
+        function showTaskDetail(taskId) {
+            const task = tasks.find(t => (t.taskId || t.id) === taskId);
+            if (!task) return alert("Không tìm thấy đầu việc");
+
+            document.getElementById("detailTitle").textContent = task.title;
+            document.getElementById("detailDescription").textContent = task.description;
+            document.getElementById("detailObjective").textContent = task.objective || "(Không có)";
+            document.getElementById("detailStartDate").textContent = task.startDate;
+            document.getElementById("detailEndDate").textContent = task.endDate;
+            document.getElementById("detailPriority").textContent = task.priority;
+            document.getElementById("detailStatus").textContent = task.status;
+            document.getElementById("detailDeadlineType").textContent = task.deadlineType || "(Chưa có)";
+
+            document.getElementById("taskDetail").style.display = "block";
+        }
+
+        // Hàm load danh sách task từ API (để dùng chung trong render bảng và select)
+        async function loadTaskList() {
+            try {
+                const response = await fetch('/api/tasks/get');
+                if (!response.ok) throw new Error('Lỗi khi tải danh sách task');
+                tasks = await response.json();
+
+                renderTaskTable(tasks); // Hiển thị bảng task
+            } catch (error) {
+                console.error(error);
+                alert('Không thể tải dữ liệu đầu việc.');
+            }
+        }
+
+        // Load danh sách task cho select dropdown mapping
+        async function loadTasksForSelect() {
+            const taskSelect = document.getElementById('taskId');
+            taskSelect.innerHTML = '';
+            try {
+                const res = await fetch('/api/tasks/get');
+                if (!res.ok) throw new Error('Lỗi khi tải danh sách Task');
+                const taskList = await res.json();
+
+                taskList.forEach(task => {
+                    const option = document.createElement('option');
+                    option.value = task.taskId || task.id;
+                    option.textContent = task.title;
+                    taskSelect.appendChild(option);
+                });
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Load danh sách category cho filter và select mapping
+        async function loadCategories() {
+            const categorySelect = document.getElementById('categoryId');
+            categorySelect.innerHTML = '';
+            try {
+                const res = await fetch('/api/taskCategories/get');
+                if (!res.ok) throw new Error('Lỗi khi tải danh sách Loại Công Tác');
+                const categories = await res.json();
+
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.categoryId || cat.id;
+                    option.textContent = cat.name;
+                    categorySelect.appendChild(option);
+                });
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Sự kiện khi nhấn nút hiển thị form mapping
+        document.getElementById('btnShowMappingForm').addEventListener('click', async () => {
+            document.getElementById('mappingForm').style.display = 'block';
+            await loadTasksForSelect();
+            await loadCategories();
+        });
+
+        // Nút hủy form mapping
+        document.getElementById('btnCancel').addEventListener('click', () => {
+            document.getElementById('mappingForm').style.display = 'none';
+        });
+
+        // Xử lý submit form mapping
+        document.getElementById('formMapping').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const taskId = document.getElementById('taskId').value;
+            const categoryId = document.getElementById('categoryId').value;
+
+            try {
+                const res = await fetch('/api/taskCategoryMapping/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ taskId, categoryId })
+                });
+                if (res.ok) {
+                    alert('Gán thành công');
+                    document.getElementById('mappingForm').style.display = 'none';
+                } else {
+                    const data = await res.json();
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối server');
+            }
+        });
+
+        // Xử lý submit form thêm mới task
+        document.getElementById("addTaskForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch("/api/tasks/create", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error("Thêm đầu việc thất bại");
+
+                alert("Thêm đầu việc thành công");
+                form.reset();
+                await loadTaskList();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // Xử lý submit form sửa task
+        document.getElementById("editTaskForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            const editingId = form.dataset.editingId;
+            if (!editingId) return alert("Không xác định được đầu việc để cập nhật");
+
+            try {
+                const response = await fetch(`/api/tasks/update/${editingId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error("Cập nhật đầu việc thất bại");
+
+                alert("Cập nhật đầu việc thành công");
+                cancelEdit();
+                await loadTaskList();
+            } catch (error) {
+                console.error(error);
+                alert("Lỗi: " + error.message);
+            }
+        });
+
+        // Xử lý form tạo loại công tác
+        document.getElementById('showTaskCategoryFormBtn').addEventListener('click', () => {
+            document.getElementById('taskCategoryForm').style.display = 'block';
+        });
+
+        document.getElementById('cancelTaskCategoryFormBtn').addEventListener('click', () => {
+            document.getElementById('taskCategoryForm').style.display = 'none';
+            document.getElementById('taskCategoryForm').reset();
+        });
+
+        document.getElementById('taskCategoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/taskCategories/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) throw new Error('Lỗi khi tạo loại công tác');
+
+                alert('Đã tạo loại công tác thành công');
+                form.reset();
+                form.style.display = 'none';
+
+                // Nếu muốn, bạn có thể gọi loadCategories() để cập nhật select filter và mapping
+                await loadCategories();
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        });
+
+        // Khởi chạy khi trang load xong
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTaskList();
+            loadTaskCategories();
+            loadTaskCategoryMapping();
+        });
+
+
+    </script>
+
+
+
+</body>
+
+</html>

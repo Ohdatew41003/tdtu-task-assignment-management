@@ -2,6 +2,10 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs'); // Thêm thư viện bcryptjs để mã hóa mật khẩu
 const UserRole = require('../models/UserRole');
 const Role = require('../models/Role');
+const { v4: uuidv4 } = require('uuid');
+
+
+
 
 const getUsers = async (req, res) => {
     try {
@@ -75,6 +79,7 @@ const createUser = async (req, res) => {
 
         // Tạo tài khoản mới
         const newUser = new User({
+            userId: uuidv4(),
             fullName,
             username,
             email,
@@ -89,6 +94,7 @@ const createUser = async (req, res) => {
         res.status(201).json({
             message: 'Tạo người dùng thành công',
             user: {
+                userId: newUser.userId,
                 fullName: newUser.fullName,
                 username: newUser.username,
                 email: newUser.email,
@@ -107,12 +113,17 @@ const updateUser = async (req, res) => {
         const { id } = req.params;
         const { fullName, username, email, roles, status } = req.body;
 
-        // Kiểm tra tính hợp lệ của dữ liệu
         if (!fullName || !username || !email || !roles || !status) {
             return res.status(400).json({ error: 'Thiếu thông tin cần thiết' });
         }
 
-        // Cập nhật người dùng
+        // Tìm user để lấy userId (UUID)
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'Người dùng không tồn tại' });
+        }
+
+        // Cập nhật người dùng trong bảng User
         const updatedUser = await User.findByIdAndUpdate(id, {
             fullName,
             username,
@@ -121,15 +132,31 @@ const updateUser = async (req, res) => {
             status
         }, { new: true });
 
+        // Lấy danh sách roleId từ roleName
+        const foundRoles = await Role.find({ roleName: { $in: roles } });
 
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'Người dùng không tìm thấy' });
+        if (foundRoles.length !== roles.length) {
+            return res.status(400).json({ error: 'Một hoặc nhiều vai trò không hợp lệ' });
         }
 
+        const userId = user.userId; // UUID
+        const roleIds = foundRoles.map(role => role.roleId);
+
+        // Xóa các phân quyền cũ trong UserRole
+        await UserRole.deleteMany({ userId });
+
+        // Tạo các phân quyền mới trong UserRole
+        const userRoleDocs = roleIds.map(roleId => ({
+            userId,
+            roleId
+        }));
+        await UserRole.insertMany(userRoleDocs);
+
         res.json({
-            message: 'Cập nhật người dùng thành công',
+            message: 'Cập nhật người dùng và phân quyền thành công',
             user: updatedUser
         });
+
     } catch (error) {
         console.error(error);
         res.status(400).json({ error: 'Cập nhật thất bại' });

@@ -10,4 +10,6 @@ const TaskAssignmentSchema = new Schema({
     assignedDate: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('TaskAssignment', TaskAssignmentSchema);
+const TaskAssignment = mongoose.model('TaskAssignment', TaskAssignmentSchema);
+
+module.exports = TaskAssignment;

@@ -1,6 +1,6 @@
-//D:\DACNTT\models\UserDepartment.js
-import mongoose from 'mongoose';
-import { Position } from '../constants'; // đường dẫn bạn điều chỉnh cho đúng
+// models/UserDepartment.js
+const mongoose = require('mongoose');
+const { Position } = require('../constants/index');
 
 const userDepartmentSchema = new mongoose.Schema({
     userId: {
@@ -15,7 +15,7 @@ const userDepartmentSchema = new mongoose.Schema({
     },
     position: {
         type: String,
-        enum: Object.values(Position),  // dùng enum từ constants Position
+        enum: Object.values(Position),
         default: Position.USER,
     },
     joinDate: {
@@ -30,7 +30,6 @@ const userDepartmentSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-// đảm bảo userId + departmentId không trùng
 userDepartmentSchema.index({ userId: 1, departmentId: 1 }, { unique: true });
 
-export const UserDepartment = mongoose.model('UserDepartment', userDepartmentSchema);
+module.exports = mongoose.model('UserDepartment', userDepartmentSchema);

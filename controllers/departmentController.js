@@ -1,8 +1,9 @@
 //D:\DACNTT\controllers\departmentController.js
-const Department = require('../models/Department');
+const Department = require('../models/Department.js').Department; // sai nếu export như trên
+
 
 exports.createDepartment = async (req, res) => {
-  console.log('Received body:', req.body);
+
 
   try {
     const {
@@ -14,36 +15,49 @@ exports.createDepartment = async (req, res) => {
       establishedDate,
       displayOrder
     } = req.body;
-
     const newDepartment = new Department({
-      departmentId: await generateDepartmentId(),
       name,
       code,
       description,
-      parentDepartmentId: parentDepartmentId || null,
+      parentDepartmentId: parentDepartmentId || null, // sửa chỗ này
       headUserId: headUserId || null,
       establishedDate: establishedDate ? new Date(establishedDate) : null,
       displayOrder: displayOrder || 0,
     });
 
+
     await newDepartment.save();
     res.status(201).json(newDepartment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error creating department:', error);
+    res.status(400).json({ message: error.message, stack: error.stack });
   }
-};
 
+};
 
 exports.getDepartments = async (req, res) => {
   try {
     const departments = await Department.find()
-      .populate('head deputyHead', 'fullName email')
-      .populate('parentId', 'name');
-    res.json(departments);
+      .populate('departmentId', 'name')
+      .lean();
+
+    // Nếu URL là /api/admin/get mới render view
+    if (req.originalUrl.startsWith('/api/admin/get')) {
+      res.render('admin/index', { departments, user: req.user });
+    } else {
+      res.json(departments);
+    }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    if (req.originalUrl.startsWith('/api/admin/get')) {
+      res.status(500).send('Lỗi khi hiển thị giao diện quản lý đơn vị');
+    } else {
+      res.status(500).json({ error: 'Lỗi khi lấy danh sách đơn vị' });
+    }
   }
 };
+
+
 
 exports.updateDepartment = async (req, res) => {
   try {

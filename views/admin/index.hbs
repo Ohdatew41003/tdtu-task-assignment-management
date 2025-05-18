@@ -86,6 +86,10 @@
         #editUserForm button:hover {
             opacity: 0.9;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -96,6 +100,8 @@
             <ul>
                 <li><a href="/api/admin/index">Trang Admin</a></li>
                 <li><a href="/api/admin/get">Quản lý người dùng</a></li>
+
+                <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
                 <li>
                     <form action="/api/auth/logout" method="POST">
                         <button type="submit">Đăng Xuất</button>
@@ -114,6 +120,8 @@
             <div style="margin-top: 20px;">
                 <button id="addDepartmentBtn">Thêm đơn vị mới</button>
             </div>
+            <button id="addUserDepartmentBtn">Gán người dùng vào đơn vị</button>
+
         </div>
 
         <!-- Tab 1: Danh sách người dùng -->
@@ -179,7 +187,7 @@
 
         <!-- Tab 2: Form tạo tài khoản -->
         <div id="createForm" class="tab-content">
-            <form action="/admin/users/create" method="POST">
+            <form action="/api/users/create" method="POST">
                 <fieldset>
                     <legend>Thông tin cơ bản</legend>
                     <label>Họ tên:</label>
@@ -250,10 +258,10 @@
             <select name="parentDepartmentId" id="parentDepartmentId">
                 <option value="">-- Không có đơn vị cha --</option>
                 {{#each departments}}
-                <option value="{{this.departmentId}}">{{this.name}}</option>
-
+                <option value="{{_id}}">{{name}}</option>
                 {{/each}}
             </select>
+
 
 
 
@@ -269,7 +277,7 @@
             <input type="date" name="establishedDate" id="establishedDate">
 
             <label>Thứ tự hiển thị:</label>
-            <input type="number" name="displayOrder" id="displayOrder" min="1" placeholder="Tùy chọn">
+            <input type="number" name="displayOrder" id="displayOrder" min="0" placeholder="Tùy chọn">
 
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
                 <button type="submit"
@@ -280,6 +288,53 @@
             </div>
         </form>
     </div>
+
+    <div id="addUserDepartmentModal" class="modal" style="display:none;">
+        <form id="addUserDepartmentForm"
+            style="background:white; padding:20px 30px; border-radius:10px; width:450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display:flex; flex-direction:column; gap:12px;">
+            <h3>Gán người dùng vào đơn vị</h3>
+
+            <label>Người dùng:<span style="color:red">*</span></label>
+            <select name="userId" id="userId" required>
+                <option value="">-- Chọn người dùng --</option>
+                {{#each users}}
+                <option value="{{_id}}">{{fullName}}</option>
+                {{/each}}
+            </select>
+
+            <label>Đơn vị:<span style="color:red">*</span></label>
+            <select name="departmentId" id="departmentId" required>
+                <option value="">-- Chọn đơn vị --</option>
+                {{#each departments}}
+                <option value="{{_id}}">{{name}}</option>
+                {{/each}}
+            </select>
+
+            <label>Vị trí công tác:</label>
+            <select name="position" id="position">
+                <option value="DEPT_HEAD">Trưởng Khoa</option>
+                <option value="DEPUTY_HEAD">Phó Trưởng Khoa</option>
+                <option value="DIVISION_HEAD">Trưởng Bộ Môn</option>
+                <option value="COORDINATOR">Điều phối viên</option>
+                <option value="LECTURER">Giảng Viên</option>
+                <option value="STAFF">Nhân Viên</option>
+            </select>
+
+            <label>Ngày tham gia:</label>
+            <input type="date" name="joinDate" id="joinDate" value="{{today}}" />
+
+            <label>Trạng thái:</label>
+            <select name="isActive" id="isActive">
+                <option value="true" selected>ACTIVE</option>
+                <option value="false">INACTIVE</option>
+            </select>
+
+            <button type="submit">Gán vào đơn vị</button>
+            <button type="button" onclick="closeAddUserDepartmentModal()">Hủy</button>
+        </form>
+    </div>
+
+
     <script>
 
 
@@ -377,9 +432,10 @@
                 code: document.getElementById('departmentCode').value.trim(),
                 description: document.getElementById('description').value.trim(),
                 parentDepartmentId: document.getElementById('parentDepartmentId').value || null,
-                leaderId: document.getElementById('headUserId').value || null,
+                headUserId: document.getElementById('headUserId').value || null,
                 establishedDate: document.getElementById('establishedDate').value || null,
-                displayOrder: document.getElementById('displayOrder').value ? Number(document.getElementById('displayOrder').value) : null
+                displayOrder: document.getElementById('displayOrder').value ? Number(document.getElementById('displayOrder').value) : 0
+
             };
 
             // Gửi dữ liệu đến API backend (thay URL cho phù hợp)
@@ -401,6 +457,62 @@
         });
 
 
+        document.getElementById("addUserDepartmentBtn").addEventListener("click", function () {
+            document.getElementById("addUserDepartmentModal").style.display = "flex";
+        });
+
+        function closeAddUserDepartmentModal() {
+            document.getElementById("addUserDepartmentModal").style.display = "none";
+        }
+
+        // Xử lý submit nếu muốn dùng JavaScript fetch
+        document.getElementById("addUserDepartmentForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch("/api/userDepartments/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            }).then(res => {
+                if (res.ok) {
+                    alert("Gán người dùng vào đơn vị thành công!");
+                    closeAddUserDepartmentModal();
+                    location.reload();
+                } else {
+                    alert("Có lỗi xảy ra.");
+                }
+            });
+        });
+
+        async function loadDepartments() {
+            const res = await fetch('/api/departments');
+            const departments = await res.json();
+
+            const select = document.getElementById('departmentId');
+            departments.forEach(dep => {
+                const option = document.createElement('option');
+                option.value = dep._id;      // hoặc dep.departmentId nếu có
+                option.textContent = dep.name;  // hoặc dep.code + " - " + dep.name
+                select.appendChild(option);
+            });
+
+            const selectParent = document.getElementById('parentDepartmentId');
+            departments.forEach(dep => {
+                const option = document.createElement('option');
+                option.value = dep._id;      // hoặc dep.departmentId nếu có
+                option.textContent = dep.name;  // hoặc dep.code + " - " + dep.name
+                selectParent.appendChild(option);
+            });
+        }
+
+
+        // Khi trang tải xong thì gọi
+        window.addEventListener('DOMContentLoaded', loadDepartments);
     </script>
 </body>
 

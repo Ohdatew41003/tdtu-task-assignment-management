@@ -1,7 +1,13 @@
-//D:\DACNTT\models\Department.js
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';  // thư viện tạo UUID
 
 const departmentSchema = new mongoose.Schema({
+    departmentId: {
+        type: String,
+        required: true,
+        unique: true,
+        default: () => uuidv4(), // tự tạo UUID khi tạo document mới
+    },
     name: {
         type: String,
         required: true,

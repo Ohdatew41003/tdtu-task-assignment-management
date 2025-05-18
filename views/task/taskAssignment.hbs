@@ -1,0 +1,434 @@
+<!-- views/taskAssignment.hbs -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Phân công công việc</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        section {
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .form-container,
+        .list-container,
+        .detail-container {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        select,
+        textarea,
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .search-input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Phân loại đầu việc */
+        .task-category-filter {
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Chi tiết đầu việc */
+        .detail-container p {
+            margin: 6px 0;
+        }
+
+        /* Header */
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 15px;
+            background-color: #0056b3;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #003366;
+        }
+
+        nav ul li form button {
+            padding: 10px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li form button:hover {
+            background-color: #c82333;
+        }
+
+        * Căn giữa section chứa form */ section {
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            /* căn giữa ngang */
+        }
+
+        /* Căn giữa form và giới hạn chiều rộng */
+        #assignmentForm {
+            width: 100%;
+            max-width: 500px;
+            /* bạn có thể chỉnh theo ý */
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            margin: 0 auto;
+            /* căn giữa ngang */
+        }
+
+        #assignedTasks {
+            max-width: 900px;
+            /* Giới hạn chiều rộng */
+            margin: 20px auto;
+            /* Căn giữa ngang và cách trên dưới */
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        button {
+            display: block;
+            /* cho button thành block */
+            margin: 0 auto;
+            /* căn giữa ngang */
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    </style>
+
+</head>
+
+<header>
+    <h1>Quản Lý Đầu Việc</h1>
+    <nav>
+        <ul>
+            <li><a href="/api/admin/index">Trang Admin</a></li>
+            <li><a href="/api/admin/get">Quản lý người dùng</a></li>
+
+            <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
+            <li>
+                <form action="/api/auth/logout" method="POST">
+                    <button type="submit">Đăng Xuất</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+
+<body>
+    <h1>Phân công công việc</h1>
+
+    <form id="assignmentForm">
+        <div class="form-group">
+            <label for="taskSelect">Chọn công việc:</label>
+            <select id="taskSelect" name="taskId" required>
+                {{#each tasks}}
+                <option value="{{this._id}}">{{this.title}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="assignerId">Người giao:</label>
+            <select id="assignerId" name="assignerId" required>
+                {{#each users}}
+                <option value="{{this.userI d}}">{{this.username}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="assigneeType">Loại người nhận:</label>
+            <select id="assigneeType" name="assigneeType" required>
+                <option value="User">Cá Nhân</option>
+                <option value="Group">Nhóm</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="assigneeSelectGroup">
+            <label for="assigneeId">Chọn người nhận:</label>
+            <select id="assigneeId" name="assigneeId" required>
+                <!-- Mặc định hiển thị danh sách users -->
+                {{#each users}}
+                <option value="{{this.userId}}">{{this.username}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline" required />
+        </div>
+
+
+        <button type="submit">Phân công</button>
+    </form>
+
+
+    <h2>Công việc đã phân công</h2>
+    <div id="assignedTasks" class="task-list">
+        <!-- Danh sách công việc phân công sẽ hiện ở đây -->
+    </div>
+
+    <script>
+        let users = [];
+        let tasks = [];
+        let taskAssignments = []; // thêm biến lưu danh sách phân công
+
+        // Load users, tasks và phân công từ API
+        async function loadUsersTasksAndAssignments() {
+            try {
+                const [usersRes, tasksRes, assignmentsRes] = await Promise.all([
+                    fetch('/api/users/get'),
+                    fetch('/api/tasks/get'),
+                    fetch('/api/taskAssignment/get')  // thêm API lấy phân công
+                ]);
+
+                users = await usersRes.json();
+                tasks = await tasksRes.json();
+                taskAssignments = await assignmentsRes.json();
+
+                // Đổ dữ liệu vào select công việc
+                const taskSelect = document.getElementById('taskSelect');
+                taskSelect.innerHTML = tasks.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
+
+                // Đổ dữ liệu vào select người giao
+                const assignerSelect = document.getElementById('assignerId');
+                assignerSelect.innerHTML = users.map(u => `<option value="${u._id}">${u.username || u.name}</option>`).join('');
+
+                // Đổ dữ liệu người nhận mặc định (User)
+                loadAssigneeOptions('User');
+
+                // Hiển thị danh sách phân công đã có lên giao diện
+                taskAssignments.forEach(task => {
+                    addAssignedTaskToList(task);
+                });
+
+            } catch (error) {
+                console.error('Lỗi load dữ liệu:', error);
+            }
+        }
+
+        // Load options người nhận theo loại User/Group
+        function loadAssigneeOptions(type) {
+            const assigneeSelect = document.getElementById('assigneeId');
+            if (type === 'User') {
+                assigneeSelect.innerHTML = users.map(u => `<option value="${u._id}">${u.username || u.name}</option>`).join('');
+            } else if (type === 'Group') {
+                assigneeSelect.innerHTML = `<option value="">(Chưa có nhóm)</option>`;
+                console.debug('Đã load danh sách người nhận là Group (chưa có dữ liệu)');
+            }
+        }
+
+        // Event khi thay đổi loại người nhận
+        document.getElementById('assigneeType').addEventListener('change', (e) => {
+            loadAssigneeOptions(e.target.value);
+        });
+
+        // Hàm lấy tên user theo id
+        function getUserNameById(id) {
+            const user = users.find(u => u._id === id);
+            return user ? (user.username || user.name) : id;
+        }
+
+        // Hàm lấy tiêu đề task theo id
+        function getTaskTitleById(id) {
+            const task = tasks.find(t => t._id === id);
+            return task ? task.title : id;
+        }
+
+        // Xử lý submit form
+        document.getElementById('assignmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {
+                taskId: formData.get('taskId'),
+                assigneeId: formData.get('assigneeId'),      // sửa đúng id người nhận
+                assigneeType: formData.get('assigneeType'),
+                assignedById: formData.get('assignerId'),    // sửa đúng id người giao
+                assignedDate: formData.get('deadline')
+            };
+            console.log('📦 Dữ liệu gửi đi:', data);
+            try {
+                const res = await fetch('/api/taskAssignment/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!res.ok) throw new Error('Phân công thất bại');
+
+                const assignedTask = await res.json();
+
+                // Thêm phân công mới vào list và UI
+                addAssignedTaskToList(assignedTask.assignment);
+
+                e.target.reset();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // Hiển thị công việc đã phân công lên giao diện
+        function addAssignedTaskToList(task) {
+            console.log('Task nhận được:', task); // Debug dữ liệu task
+            const container = document.getElementById('assignedTasks');
+
+            const html = `
+      <div class="assigned-task-item">
+        <p><strong>Công việc:</strong> ${getTaskTitleById(task.taskId)}</p>
+        <p><strong>Người giao:</strong> ${getUserNameById(task.assignedById)}</p>
+        <p><strong>Người nhận (${task.assigneeType}):</strong> ${getUserNameById(task.assigneeId)}</p>
+        <p><strong>Ngày giao:</strong> ${new Date(task.assignedDate).toLocaleString()}</p>
+      </div><hr>
+    `;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+
+
+        // Load dữ liệu khi DOM sẵn sàng
+        window.addEventListener('DOMContentLoaded', loadUsersTasksAndAssignments);
+
+    </script>
+</body>
+
+</html>

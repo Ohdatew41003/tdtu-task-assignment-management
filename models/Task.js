@@ -1,8 +1,9 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
+import { v4 as uuidv4 } from 'uuid';
 
 const taskSchema = new Schema({
-    taskId: { type: String, required: true, unique: true }, // UUID chuỗi
+    taskId: { type: String, required: true, unique: true, default: () => uuidv4(), }, // UUID chuỗi
     title: { type: String, required: true, maxlength: 200 },
     description: { type: String, required: true }, // text
     objective: { type: String, default: null },
@@ -42,4 +43,4 @@ taskSchema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.model('Task', taskSchema);
+export const Task = mongoose.model('Task', taskSchema);
