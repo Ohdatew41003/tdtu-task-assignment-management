@@ -1,0 +1,791 @@
+<!-- views/dashboard.hbs -->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard Công Việc</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+            margin: 15px 0 0 0;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        nav ul li a,
+        nav ul li form button {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a {
+            background-color: #0056b3;
+        }
+
+        nav ul li a:hover {
+            background-color: #003366;
+        }
+
+        nav ul li form button {
+            background-color: #dc3545;
+        }
+
+        nav ul li form button:hover {
+            background-color: #c82333;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .task-dashboard h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .task {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-left: 5px solid #0d6efd;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .task h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status.IN_PROGRESS {
+            color: orange;
+        }
+
+        .status.COMPLETED {
+            color: green;
+        }
+
+        .status.PENDING {
+            color: gray;
+        }
+
+        .progress-bar {
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+            height: 10px;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #0d6efd;
+            transition: width 0.3s ease;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        /* CSS cho nút "Cập nhật & Upload tài liệu" */
+        .btn-update-progress {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .btn-update-progress:hover {
+            background-color: #0056b3;
+        }
+
+        /* CSS cho modal overlay */
+        #modalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        /* CSS cho popup modal */
+        #updateProgressModal {
+            display: none;
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Tiêu đề modal */
+        #updateProgressModal h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Form trong modal */
+        #updateProgressModal form label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Input và textarea */
+        #updateProgressModal input[type="number"],
+        #updateProgressModal textarea,
+        #updateProgressModal input[type="file"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+
+        #updateProgressModal textarea {
+            height: 60px;
+        }
+
+        /* Nút lưu cập nhật */
+        #updateProgressModal button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        #updateProgressModal button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        /* Nút đóng modal */
+        #updateProgressModal button#closeModal {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #updateProgressModal button#closeModal:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsive cho modal khi màn hình nhỏ */
+        @media (max-width: 450px) {
+            #updateProgressModal {
+                width: 90%;
+                padding: 15px 20px;
+            }
+        }
+
+        #openEvaluationBtn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            /* màu xanh dương */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #openEvaluationBtn:hover {
+            background-color: #0056b3;
+            /* màu xanh đậm khi hover */
+        }
+
+        /* Overlay chung */
+        #updateModalOverlay,
+        #evaluationModalOverlay {
+            display: none;
+            /* Mặc định ẩn */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            /* nền mờ */
+            z-index: 999;
+        }
+
+        /* Modal chung */
+        #updateProgressModal,
+        #evaluationModal {
+            display: none;
+            /* Mặc định ẩn */
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            padding: 20px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            max-width: 400px;
+            width: 90%;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Tiêu đề modal */
+        #updateProgressModal h3,
+        #evaluationModal h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            color: #333;
+        }
+
+        /* Label và input */
+        #updateProgressModal label,
+        #evaluationModal label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        #updateProgressModal input[type="number"],
+        #updateProgressModal textarea,
+        #evaluationModal select,
+        #evaluationModal textarea {
+            width: 100%;
+            padding: 7px 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        /* Nút bấm */
+        #updateProgressModal button,
+        #evaluationModal button {
+            margin-top: 15px;
+            padding: 10px 18px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #updateProgressModal button:hover,
+        #evaluationModal button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Nút đóng modal dạng dấu X */
+        #closeEvaluationModal {
+            float: right;
+            font-size: 22px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #closeEvaluationModal:hover {
+            color: #333;
+        }
+
+        /* Nút đóng modal cập nhật tiến độ */
+        #closeUpdateModal {
+            background-color: #6c757d;
+            margin-left: 10px;
+        }
+
+        #closeUpdateModal:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+
+<body data-userid="{{user.userId}}">
+    <!-- Modal cập nhật tiến độ -->
+    <div id="updateProgressModal"
+        style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000; max-width:400px;">
+        <h3>Cập nhật tiến độ công việc</h3>
+        <form id="updateProgressForm">
+            <input type="hidden" name="progressId" id="progressId" />
+            <label>Tiến độ (%): <input type="number" name="progressPercentage" id="progressPercentage" min="0" max="100"
+                    required /></label><br />
+            <label>Vấn đề (nếu có): <textarea name="issues" id="issues" rows="3"></textarea></label><br />
+            <label>Tải lên tài liệu: <input type="file" name="attachment" id="attachment" /></label><br />
+            <button type="submit">Lưu cập nhật</button>
+            <button type="button" id="closeUpdateModal">Đóng</button>
+        </form>
+    </div>
+    <div id="updateModalOverlay"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;">
+    </div>
+
+    <!-- Modal đánh giá công việc -->
+    <div id="evaluationModal" class="modal"
+        style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000; max-width:400px;">
+        <div class="modal-content">
+            <span id="closeEvaluationModal" class="close"
+                style="cursor:pointer; float:right; font-size:20px;">&times;</span>
+            <h3>Đánh giá công việc</h3>
+            <form id="evaluationForm">
+                <input type="" id="evalTaskId" name="taskId" />
+                <input type="" id="evalEvaluatorId" name="evaluatorId" />
+
+                <label for="rating">Đánh giá:</label>
+                <select id="rating" name="rating" required>
+                    <option value="">Chọn mức đánh giá</option>
+                    <option value="NotCompleted">Chưa hoàn thành</option>
+                    <option value="Weak">Yếu</option>
+                    <option value="Completed">Hoàn thành</option>
+                    <option value="Active">Hoạt động</option>
+                    <option value="Good">Tốt</option>
+                    <option value="Excellent">Xuất sắc</option>
+                </select>
+
+                <label for="comment">Bình luận:</label>
+                <textarea id="comment" name="comment" rows="3"></textarea>
+
+                <label for="improvementSuggestions">Gợi ý cải thiện:</label>
+                <textarea id="improvementSuggestions" name="improvementSuggestions" rows="3"></textarea>
+
+                <button type="submit">Gửi đánh giá</button>
+            </form>
+        </div>
+    </div>
+    <div id="evaluationModalOverlay"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;">
+    </div>
+
+
+
+
+    <header>
+        <h1>Dashboard Công Việc</h1>
+        <nav>
+            <ul>
+                <li><a href="/api/admin/index">Trang Admin</a></li>
+                <li><a href="/api/admin/get">Quản lý người dùng</a></li>
+
+                <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
+                <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
+                <li><a href="/api/tasks/evalution">Đánh giá</a></li>
+                <li><a href="/api/extensionRequest/extensionRequest">Gia hạn(đang phát triển)</a></li>
+                <li>
+                    <form action="/api/auth/logout" method="POST">
+                        <button type="submit">Đăng Xuất</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section class="task-dashboard">
+            <h2>Danh Sách Công Việc để đánh giá(đang phát triển..)</h2>
+
+            <!-- Phần render dữ liệu tĩnh lúc server render -->
+            {{#each taskProgressList}}
+            <div class="task">
+                <h3>Công việc ID: {{taskId}}</h3>
+                <p><strong>Người báo cáo:</strong> {{reportedById}}</p>
+                <p><strong>Mô tả:</strong> {{description}}</p>
+                <p><strong>Trạng thái:</strong>
+                    {{#if (eq progressPercentage 100)}}
+                    <span class="status COMPLETED">COMPLETED</span>
+                    {{else if (gt progressPercentage 0)}}
+                    <span class="status IN_PROGRESS">IN_PROGRESS</span>
+                    {{else}}
+                    <span class="status PENDING">PENDING</span>
+                    {{/if}}
+                </p>
+                <p><strong>Tiến độ:</strong> {{progressPercentage}}%</p>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner"
+                        style="width: {{progressPercentage}}%; background-color: {{#if (eq progressPercentage 100)}}green{{else}}#007bff{{/if}};">
+                    </div>
+                </div>
+                <p><strong>Ngày báo cáo:</strong> {{formatDate reportDate}}</p>
+                {{#if issues}}
+                <p><strong>Vấn đề:</strong> {{issues}}</p>
+                {{/if}}
+                {{#if attachment}}
+                <p><strong>File đính kèm:</strong>
+                    <a href="{{attachment.url}}" target="_blank" download>{{attachment.filename}}</a>
+                </p>
+                {{/if}}
+
+            </div>
+            {{/each}}
+
+        </section>
+
+        <div id="evaluationContainer">
+            <p>Đang tải dữ liệu đánh giá...</p>
+        </div>
+    </div>
+
+    <script>
+
+        // Gọi API lấy tất cả đánh giá và hiển thị
+        async function loadEvaluations() {
+            try {
+                const response = await fetch('/api/evaluations/get');
+                if (!response.ok) throw new Error('Không thể tải dữ liệu đánh giá');
+
+                const evaluations = await response.json();
+                const container = document.getElementById('evaluationContainer');
+                container.innerHTML = ''; // Xóa nội dung cũ
+
+                if (evaluations.length === 0) {
+                    container.innerHTML = '<p>Chưa có đánh giá nào.</p>';
+                    return;
+                }
+
+                evaluations.forEach(ev => {
+                    const div = document.createElement('div');
+                    div.className = 'evaluation-item';
+                    div.style.border = '1px solid #ccc';
+                    div.style.padding = '10px';
+                    div.style.marginBottom = '10px';
+
+                    const evaluator = users.find(u => u.userId === ev.evaluatorId);
+                    const evaluatorInfo = evaluator
+                        ? `${evaluator.username} (${evaluator.fullName})`
+                        : `ID: ${ev.evaluatorId}`;
+
+                    div.innerHTML = `
+                    <p><strong>Công việc ID:</strong> ${ev.taskId}</p>
+                    <p><strong>Người đánh giá:</strong> ${evaluatorInfo}</p>
+                    <p><strong>Đánh giá:</strong> ${ev.rating}</p>
+                    <p><strong>Bình luận:</strong> ${ev.comment || 'Không có'}</p>
+                    <p><strong>Gợi ý cải thiện:</strong> ${ev.improvementSuggestions || 'Không có'}</p>
+                        `;
+
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error('Lỗi khi tải đánh giá:', err);
+                document.getElementById('evaluationContainer').innerHTML = '<p>Lỗi khi tải đánh giá.</p>';
+            }
+        }
+
+        // Gọi khi DOM sẵn sàng
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+            loadEvaluations(); // Gọi hàm tải đánh giá
+        });
+        // -------------------------
+        // XỬ LÝ MỞ/ĐÓNG MODAL ĐÁNH GIÁ
+        // -------------------------
+        document.addEventListener('click', function (e) {
+            // Mở modal đánh giá khi click nút Đánh giá công việc
+            if (e.target.classList.contains('btn-open-evaluation')) {
+                const taskDiv = e.target.closest('.task');
+                const taskId = taskDiv.getAttribute('data-taskid') || taskDiv.getAttribute('data-progressid');
+
+                if (!taskId) {
+                    alert('Không lấy được ID công việc');
+                    return;
+                }
+                const userId = document.body.dataset.userid;
+                console.log("User ID:", userId);// Lấy userId từ session hoặc biến toàn cục
+
+                document.getElementById('evalTaskId').value = taskId;
+                // Bạn phải set evaluatorId (người đánh giá) theo user đăng nhập, hiện tạm set rỗng hoặc lấy từ session
+                document.getElementById('evalEvaluatorId').value = userId;
+
+                document.getElementById('evaluationModal').style.display = 'block';
+                document.getElementById('modalOverlay').style.display = 'block';
+            }
+
+            // Đóng modal đánh giá
+            if (e.target.id === 'closeEvaluationModal' || e.target.id === 'modalOverlay') {
+                document.getElementById('evaluationModal').style.display = 'none';
+                document.getElementById('modalOverlay').style.display = 'none';
+            }
+        });
+
+        // -------------------------
+        // XỬ LÝ GỬI FORM ĐÁNH GIÁ
+        // -------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('evaluationForm');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const data = {
+                    taskId: document.getElementById('evalTaskId').value,
+                    evaluatorId: document.getElementById('evalEvaluatorId').value,
+                    rating: form.rating.value,
+                    comment: form.comment.value,
+                    improvementSuggestions: form.improvementSuggestions.value,
+                };
+
+                console.log('Dữ liệu gửi lên server:', data);
+
+                try {
+                    const response = await fetch('/api/evaluations/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Lỗi server:', errorData);
+                        alert('Gửi đánh giá thất bại: ' + (errorData.message || 'Unknown error'));
+                        return;
+                    }
+
+                    const result = await response.json();
+                    console.log('Phản hồi server:', result);
+                    alert('Gửi đánh giá thành công!');
+                    await loadEvaluations();
+                } catch (error) {
+                    console.error('Lỗi mạng hoặc server:', error);
+                }
+            });
+        });
+
+        // -------------------------
+        // KHAI BÁO BIẾN LƯU DỮ LIỆU
+        // -------------------------
+        let users = [];
+        let tasks = [];
+        let taskProcess = [];
+
+        // -------------------------
+        // LOAD ĐỒNG THỜI TASKS VÀ USERS
+        // -------------------------
+        async function loadAllData() {
+            try {
+                const [tasksRes, usersRes] = await Promise.all([
+                    fetch('/api/tasks/get'),
+                    fetch('/api/users/get')
+                ]);
+
+                if (!tasksRes.ok || !usersRes.ok) {
+                    throw new Error('Lỗi khi tải dữ liệu tasks hoặc users');
+                }
+
+                tasks = await tasksRes.json();
+                users = await usersRes.json();
+
+                if (!Array.isArray(tasks) || !Array.isArray(users)) {
+                    throw new Error('Dữ liệu tasks hoặc users không đúng định dạng');
+                }
+
+                // Không gọi renderTaskAndUser ở đây nữa, vì hiển thị trong phần tiến độ công việc
+                await loadTaskProgress();
+                await loadEvaluations();
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+            }
+        }
+
+        // -------------------------
+        // RENDER DANH SÁCH TASK VÀ NGƯỜI LÀM
+        // -------------------------
+        function renderTaskAndUser(tasks, users) {
+            const container = document.getElementById('task-list');
+            if (!container) {
+                console.error('Không tìm thấy phần tử chứa danh sách công việc (id="task-list")');
+                return;
+            }
+
+            container.innerHTML = '';
+
+            tasks.forEach(task => {
+                // Tìm user theo task.userId
+                const user = users.find(u => u.id === task.userId);
+                const userName = user ? user.name : 'Không rõ người làm';
+
+                const item = document.createElement('div');
+                item.textContent = `Công việc: ${task.title} - Người làm: ${userName}`;
+                container.appendChild(item);
+            });
+        }
+
+        // -------------------------
+        // LOAD DỮ LIỆU TIẾN ĐỘ CÔNG VIỆC
+        // -------------------------
+        async function loadTaskProgress() {
+            try {
+                const response = await fetch('/api/taskProgress/get');
+                if (!response.ok) {
+                    throw new Error('Lỗi khi tải dữ liệu tiến độ công việc');
+                }
+                const jsonData = await response.json();
+
+                // Giả sử jsonData có dạng {success: true, data: [...] }
+                taskProcess = Array.isArray(jsonData) ? jsonData : jsonData.data;
+
+                if (!Array.isArray(taskProcess)) {
+                    throw new Error('Dữ liệu tiến độ không phải là mảng');
+                }
+
+                renderTaskProgress(taskProcess);
+            } catch (error) {
+                console.error('Lỗi:', error);
+            }
+        }
+
+        // -------------------------
+        // RENDER DANH SÁCH TIẾN ĐỘ CÔNG VIỆC
+        // -------------------------
+        function renderTaskProgress(tasksProgress) {
+            const container = document.querySelector('.task-dashboard');
+            if (!container) {
+                console.error('Không tìm thấy phần tử chứa tiến độ công việc (.task-dashboard)');
+                return;
+            }
+
+            container.innerHTML = '<h2>Danh Sách Công Việc để đánh giá( đang phát triển thêm... )</h2>';
+
+            tasksProgress.forEach(taskProgress => {
+                // Tìm task theo taskId
+                const task = tasks.find(t => t.taskId === taskProgress.taskId);
+                const taskTitle = task ? task.title : `Công việc ID: ${taskProgress.taskId}`;
+
+                // Tìm user theo reportedById
+                const user = users.find(u => u.userId === taskProgress.reportedById);
+                const fullName = user ? user.fullName : `Người báo cáo ID: ${taskProgress.reportedById}`;
+
+                const statusClass = taskProgress.progressPercentage === 100
+                    ? 'COMPLETED'
+                    : (taskProgress.progressPercentage > 0 ? 'IN_PROGRESS' : 'PENDING');
+
+                const reportDate = new Date(taskProgress.reportDate);
+                const formattedDate = isNaN(reportDate.getTime()) ? '' : reportDate.toLocaleDateString('vi-VN');
+
+                // Xử lý file đính kèm
+                let fileAttachmentHTML = '';
+                if (typeof taskProgress.attachment === 'string' && taskProgress.attachment.trim() !== '') {
+                    const fileUrl = taskProgress.attachment.replace(/\\/g, '/'); // normalize path
+                    const fileName = fileUrl.split('/').pop();
+                    fileAttachmentHTML = `
+                <p><strong>File đính kèm:</strong>
+                    <a href="${fileUrl}" target="_blank" download>${fileName}</a>
+                </p>
+            `;
+                }
+
+                // Debug
+                console.log('Attachment:', taskProgress.attachment);
+
+                const taskHTML = `
+                <div class="task" 
+                data-progressid="${taskProgress.progressId}" 
+                data-taskid="${taskProgress.taskId}" 
+                data-userid="${taskProgress.reportedById}">
+
+
+                <h3>${taskTitle}</h3>
+                <p><strong>Người báo cáo:</strong> ${fullName}</p>
+                <p><strong>Mô tả:</strong> ${taskProgress.description}</p>
+                <p><strong>Trạng thái:</strong> <span class="status ${statusClass}">${statusClass}</span></p>
+                <p><strong>Tiến độ:</strong> ${taskProgress.progressPercentage}%</p>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner" style="width: ${taskProgress.progressPercentage}%; background-color: ${taskProgress.progressPercentage === 100 ? 'green' : '#007bff'};"></div>
+                </div>
+                <p><strong>Ngày báo cáo:</strong> ${formattedDate}</p>
+                ${taskProgress.issues ? `<p><strong>Vấn đề:</strong> ${taskProgress.issues}</p>` : ''}
+                ${fileAttachmentHTML}
+                <button class="btn-open-evaluation">Đánh giá công việc</button>
+            </div>
+        `;
+
+                container.innerHTML += taskHTML;
+            });
+        }
+
+        // -------------------------
+        // GỌI LOAD DỮ LIỆU KHI TRANG ĐÃ TẢI XONG
+        // -------------------------
+        window.addEventListener('DOMContentLoaded', loadAllData);
+
+    </script>
+</body>
+
+</html>

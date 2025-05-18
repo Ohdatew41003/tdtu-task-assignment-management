@@ -14,6 +14,10 @@ const taskRoutes = require('./routes/taskRoutes');
 const taskCategoryRoutes = require('./routes/taskCategoryRoutes');
 const taskCategoryMappingRoutes = require('./routes/taskCategoryMappingRoutes');
 const taskAssignmentRouter = require('./routes/taskAssignmentRouter');
+const taskProgressRouter = require('./routes/taskProgressRouter');
+const evaluationRouters = require('./routes/evaluationRoutes');
+const extensionRequestRouter = require('./routes/extensionRequest');
+
 // Models
 const User = require('./models/User');
 const RoleModel = require('./models/Role');
@@ -63,6 +67,9 @@ const startServer = async () => {
     app.use('/api/taskCategories', taskCategoryRoutes);
     app.use('/api/taskCategoryMapping', taskCategoryMappingRoutes);
     app.use('/api/taskAssignment', taskAssignmentRouter);
+    app.use('/api/taskProgress', taskProgressRouter);
+    app.use('/api/evaluations', evaluationRouters);
+    app.use('/api/extensionRequest', extensionRequestRouter);
     // Start server
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {

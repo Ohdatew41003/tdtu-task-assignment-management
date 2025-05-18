@@ -90,6 +90,99 @@
         .hidden {
             display: none;
         }
+
+        /* Đặt font chữ chung */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            margin: 20px;
+            color: #333;
+        }
+
+        /* Container form */
+        #createForm {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        /* Các fieldset có khoảng cách */
+        fieldset {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Tiêu đề fieldset */
+        legend {
+            font-weight: bold;
+            padding: 0 10px;
+            color: #555;
+        }
+
+        /* Label hiển thị block, cách input */
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        /* Input, select */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px 10px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        /* Khi focus */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* Chọn multiple select */
+        select[multiple] {
+            height: 120px;
+        }
+
+        /* Nút bấm */
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+        }
+
+        /* Hover nút */
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
@@ -102,6 +195,9 @@
                 <li><a href="/api/admin/get">Quản lý người dùng</a></li>
 
                 <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
+                <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
+                <li><a href="/api/tasks/evalution">Đánh giá</a></li>
+                <li><a href="/api/extensionRequest/extensionRequest">Gia hạn(đang phát triển)</a></li>
                 <li>
                     <form action="/api/auth/logout" method="POST">
                         <button type="submit">Đăng Xuất</button>

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const TaskProgressSchema = new Schema({
@@ -14,4 +14,4 @@ const TaskProgressSchema = new Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-export const TaskProgress = mongoose.model('TaskProgress', TaskProgressSchema);
+module.exports = mongoose.model('TaskProgress', TaskProgressSchema);

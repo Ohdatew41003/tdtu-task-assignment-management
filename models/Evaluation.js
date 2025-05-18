@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-
+const { v4: uuidv4 } = require('uuid');
 const EvaluationSchema = new Schema({
-    evaluationId: { type: String, required: true, unique: true }, // UUID
+    evaluationId: {
+        type: String,
+        default: uuidv4,
+        required: true,
+    },
     taskId: { type: String, ref: 'Task', required: true }, // UUID
     evaluatorId: { type: String, ref: 'User', required: true }, // UUID
     rating: {

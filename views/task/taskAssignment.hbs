@@ -241,6 +241,9 @@
             <li><a href="/api/admin/get">Quản lý người dùng</a></li>
 
             <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
+            <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
+            <li><a href="/api/tasks/evalution">Đánh giá</a></li>
+            <li><a href="/api/extensionRequest/extensionRequest">Gia hạn(đang phát triển)</a></li>
             <li>
                 <form action="/api/auth/logout" method="POST">
                     <button type="submit">Đăng Xuất</button>
@@ -326,11 +329,11 @@
 
                 // Đổ dữ liệu vào select công việc
                 const taskSelect = document.getElementById('taskSelect');
-                taskSelect.innerHTML = tasks.map(t => `<option value="${t._id}">${t.title}</option>`).join('');
+                taskSelect.innerHTML = tasks.map(t => `<option value="${t.taskId}">${t.title}</option>`).join('');
 
                 // Đổ dữ liệu vào select người giao
                 const assignerSelect = document.getElementById('assignerId');
-                assignerSelect.innerHTML = users.map(u => `<option value="${u._id}">${u.username || u.name}</option>`).join('');
+                assignerSelect.innerHTML = users.map(u => `<option value="${u.userId}">${u.username || u.name}</option>`).join('');
 
                 // Đổ dữ liệu người nhận mặc định (User)
                 loadAssigneeOptions('User');
@@ -349,7 +352,7 @@
         function loadAssigneeOptions(type) {
             const assigneeSelect = document.getElementById('assigneeId');
             if (type === 'User') {
-                assigneeSelect.innerHTML = users.map(u => `<option value="${u._id}">${u.username || u.name}</option>`).join('');
+                assigneeSelect.innerHTML = users.map(u => `<option value="${u.userId}">${u.username || u.name}</option>`).join('');
             } else if (type === 'Group') {
                 assigneeSelect.innerHTML = `<option value="">(Chưa có nhóm)</option>`;
                 console.debug('Đã load danh sách người nhận là Group (chưa có dữ liệu)');
@@ -363,13 +366,13 @@
 
         // Hàm lấy tên user theo id
         function getUserNameById(id) {
-            const user = users.find(u => u._id === id);
+            const user = users.find(u => u.userId === id);
             return user ? (user.username || user.name) : id;
         }
 
         // Hàm lấy tiêu đề task theo id
         function getTaskTitleById(id) {
-            const task = tasks.find(t => t._id === id);
+            const task = tasks.find(t => t.taskId === id);
             return task ? task.title : id;
         }
 
@@ -380,9 +383,9 @@
             const formData = new FormData(e.target);
             const data = {
                 taskId: formData.get('taskId'),
-                assigneeId: formData.get('assigneeId'),      // sửa đúng id người nhận
+                assigneeId: formData.get('assignerId'),      // sửa đúng id người nhận
                 assigneeType: formData.get('assigneeType'),
-                assignedById: formData.get('assignerId'),    // sửa đúng id người giao
+                assignedById: formData.get('assigneeId'),    // sửa đúng id người giao
                 assignedDate: formData.get('deadline')
             };
             console.log('📦 Dữ liệu gửi đi:', data);
@@ -414,8 +417,8 @@
             const html = `
       <div class="assigned-task-item">
         <p><strong>Công việc:</strong> ${getTaskTitleById(task.taskId)}</p>
-        <p><strong>Người giao:</strong> ${getUserNameById(task.assignedById)}</p>
-        <p><strong>Người nhận (${task.assigneeType}):</strong> ${getUserNameById(task.assigneeId)}</p>
+        <p><strong>Người giao:</strong> ${getUserNameById(task.assigneeId)}</p>
+        <p><strong>Người nhận (${task.assigneeType}):</strong> ${getUserNameById(task.assignedById)}</p>
         <p><strong>Ngày giao:</strong> ${new Date(task.assignedDate).toLocaleString()}</p>
       </div><hr>
     `;
