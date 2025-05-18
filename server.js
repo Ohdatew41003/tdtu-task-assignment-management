@@ -1,27 +1,28 @@
-// D:\DACNTT\server.js
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
-// Routes
+
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const departmentRoutes = require('./routes/departmentRoutes');
 const homeRoutes = require('./routes/homeRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const taskRoutes = require('./routes/taskRoutes');
+
 // Models
 const User = require('./models/User');
+const RoleModel = require('./models/Role');
+const Permission = require('./models/Permission');
 
 const app = express();
 app.use(cookieParser());
-// Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Đảm bảo bạn có thể lấy dữ liệu từ form
-app.use(express.static(path.join(__dirname, 'public'))); // Đảm bảo phục vụ các tệp tĩnh từ thư mục public
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Cấu hình view engine là Handlebars
+// View engine
 app.set('view engine', 'hbs');
 const hbs = require('hbs');
 hbs.registerHelper('content', function (name, options) {
@@ -29,25 +30,41 @@ hbs.registerHelper('content', function (name, options) {
   const block = blocks[name] || (blocks[name] = []);
   block.push(options.fn(this));
 });
-app.set('views', path.join(__dirname, 'views'));  // Đảm bảo thư mục views đúng
+app.set('views', path.join(__dirname, 'views'));
 
-// Kết nối database
-connectDB();
+// Kết nối database và khởi tạo dữ liệu
+const startServer = async () => {
+  try {
+    await connectDB();
 
-// Khởi tạo admin nếu chưa tồn tại
-User.createAdminIfNotExists().catch(console.error);
+    // 👉 Tự động tạo Role nếu chưa có
+    await RoleModel.createDefaultRolesIfNotExists();
 
-// Routes
-app.use('/', authRoutes);  // Auth routes ở base path '/'
-app.use(homeRoutes);       // Home routes
-app.use('/api/auth', authRoutes);  // API auth routes
-app.use('/api/users', userRoutes);  // API users routes
-app.use('/api/departments', departmentRoutes);  // API departments routes
-app.use(adminRoutes); // gắn vào root path
-app.use('/api/tasks', taskRoutes);
-// Bắt đầu server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Server đang chạy tại: http://localhost:${PORT}`);
-  console.log(`🔑 Truy cập trang đăng nhập: http://localhost:${PORT}/login`);
-});
+    // 👉 Tự động tạo tài khoản admin nếu chưa có
+    await User.createAdminIfNotExists();
+
+    // 👉 Tự động tạo PermissionPermission nếu chưa có
+    await Permission.createDefaultPermissionsIfNotExists();
+    await Permission.assignAllPermissionsToAdminRole();
+
+
+    // Routes
+    app.use('/api/home', homeRoutes);
+    app.use('/api/auth', authRoutes);
+    app.use('/api/users', userRoutes);
+    app.use('/api/departments', departmentRoutes);
+    app.use('/api/admin', adminRoutes);
+    app.use('/api/tasks', taskRoutes);
+
+    // Start server
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`🔑 Truy cập trang đăng nhập: http://localhost:${PORT}/api/auth/login`);
+    });
+
+  } catch (error) {
+    console.error('❌ Lỗi khởi động server:', error);
+  }
+};
+
+startServer();

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Đề nghị và Phê duyệt gia hạn</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        section {
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .form-container,
+        .list-container {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        select,
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .btn-approve {
+            background-color: #007bff;
+            margin-right: 10px;
+        }
+
+        .btn-approve:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-reject {
+            background-color: #dc3545;
+        }
+
+        .btn-reject:hover {
+            background-color: #a71d2a;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Đề Nghị & Phê Duyệt Gia Hạn Công Việc</h1>
+    </header>
+
+    <section>
+
+        <!-- Form đề nghị gia hạn -->
+        <div class="form-container">
+            <h2>Form Yêu Cầu Gia Hạn</h2>
+            <form>
+                <label for="taskSelect">Chọn công việc</label>
+                <select id="taskSelect" name="taskId">
+                    <option value="1">Tổng hợp kết quả học tập sinh viên</option>
+                    <option value="2">Báo cáo tình hình nghiên cứu khoa học giảng viên</option>
+                    <option value="3">Xây dựng nội dung học phần mới</option>
+                    <option value="4">Tổ chức buổi báo cáo seminar</option>
+                    <option value="5">Cập nhật tiến độ khóa luận tốt nghiệp</option>
+                </select>
+
+                <label for="reason">Lý do yêu cầu gia hạn</label>
+                <textarea id="reason" name="reason" rows="4" placeholder="Nhập lý do gia hạn..."></textarea>
+
+                <button type="submit">Gửi yêu cầu</button>
+            </form>
+        </div>
+
+        <!-- Lịch sử yêu cầu gia hạn -->
+        <div class="list-container">
+            <h2>Lịch Sử Yêu Cầu Gia Hạn</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Công việc</th>
+                        <th>Người yêu cầu</th>
+                        <th>Lý do</th>
+                        <th>Ngày yêu cầu</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tổng hợp kết quả học tập sinh viên</td>
+                        <td>Nguyễn Văn A</td>
+                        <td>Cần thêm thời gian thu thập dữ liệu</td>
+                        <td>10/05/2025</td>
+                        <td>Chờ duyệt</td>
+                    </tr>
+                    <tr>
+                        <td>Báo cáo nghiên cứu khoa học</td>
+                        <td>Trần Thị B</td>
+                        <td>Phải chỉnh sửa báo cáo theo góp ý</td>
+                        <td>09/05/2025</td>
+                        <td>Đã duyệt</td>
+                    </tr>
+                    <tr>
+                        <td>Khóa luận tốt nghiệp</td>
+                        <td>Phạm Gia Huy</td>
+                        <td>Gặp khó khăn trong quá trình thu thập dữ liệu</td>
+                        <td>08/05/2025</td>
+                        <td>Từ chối</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Danh sách phê duyệt gia hạn (dành cho trưởng/phó khoa) -->
+        <div class="list-container">
+            <h2>Danh Sách Yêu Cầu Gia Hạn (Phê duyệt)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Công việc</th>
+                        <th>Người yêu cầu</th>
+                        <th>Lý do</th>
+                        <th>Ngày yêu cầu</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tổng hợp kết quả học tập sinh viên</td>
+                        <td>Nguyễn Văn A</td>
+                        <td>Cần thêm thời gian thu thập dữ liệu</td>
+                        <td>10/05/2025</td>
+                        <td>
+                            <button class="btn-approve">Đồng ý</button>
+                            <button class="btn-reject">Từ chối</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Khóa luận tốt nghiệp</td>
+                        <td>Phạm Gia Huy</td>
+                        <td>Gặp khó khăn trong quá trình thu thập dữ liệu</td>
+                        <td>08/05/2025</td>
+                        <td>
+                            <button class="btn-approve">Đồng ý</button>
+                            <button class="btn-reject">Từ chối</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Phê duyệt / Từ chối với lý do</h3>
+            <form>
+                <label for="approvalReason">Lý do phê duyệt/từ chối</label>
+                <textarea id="approvalReason" name="approvalReason" rows="3" placeholder="Nhập lý do..."></textarea>
+
+                <button type="submit">Gửi</button>
+            </form>
+        </div>
+
+    </section>
+
+</body>
+
+</html>

@@ -4,21 +4,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
+    <title>Quản lý người dùng</title>
     <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-buttons button {
+            margin-right: 10px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .tab-buttons .active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            /* căn giữa ngang */
+            align-items: center;
+            /* căn giữa dọc */
+            z-index: 9999;
+        }
+
+        #editUserForm {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #editUserForm label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        #editUserForm input,
+        #editUserForm select {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        #editUserForm button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #editUserForm button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #editUserForm button[type="button"] {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        #editUserForm button:hover {
+            opacity: 0.9;
+        }
+    </style>
 </head>
 
 <body>
     <header>
-        <h1>Chào mừng, {{user.fullName}}!</h1>
+        <h1>Xin chào, {{user.fullName}}!</h1>
         <nav>
             <ul>
-                <li><a href="/">Trang Admin</a></li>
-                <li><a href="/profile">Hồ Sơ</a></li>
-                <li><a href="/settings">Cài Đặt</a></li>
-                <li><a href="/admin/users">Quản lý người dùng</a></li>
+                <li><a href="/api/admin/index">Trang Admin</a></li>
+                <li><a href="/api/admin/get">Quản lý người dùng</a></li>
                 <li>
-                    <form action="/logout" method="POST">
+                    <form action="/api/auth/logout" method="POST">
                         <button type="submit">Đăng Xuất</button>
                     </form>
                 </li>
@@ -29,90 +108,121 @@
     <main>
         <h2>Trang Quản Lý Người Dùng</h2>
 
-        <!-- Nút Tạo Tài Khoản Mới -->
-        <button id="createAccountBtn">Tạo tài khoản mới</button>
+        <div class="tab-buttons">
+            <button id="userListTab" class="active">Danh sách người dùng</button>
+            <button id="createAccountTab">Tạo tài khoản mới</button>
+            <div style="margin-top: 20px;">
+                <button id="addDepartmentBtn">Thêm đơn vị mới</button>
+            </div>
+        </div>
 
-        <!-- Bảng Danh Sách Người Dùng -->
-        <table>
-            <thead>
-                <tr>
-                    <th>Họ tên</th>
-                    <th>Tên đăng nhập</th>
-                    <th>Email</th>
-                    <th>Đơn vị</th>
-                    <th>Vai trò</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each users}}
-                <tr>
-                    <td>{{fullName}}</td>
-                    <td>{{username}}</td>
-                    <td>{{email}}</td>
-                    <td>{{unit}}</td>
-                    <td>{{roles}}</td>
-                    <td>{{status}}</td>
-                    <td>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                    </td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
+        <!-- Tab 1: Danh sách người dùng -->
+        <div id="userList" class="tab-content active">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Email</th>
+                        <th>Đơn vị</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each users}}
+                    <tr>
+                        <td>{{fullName}}</td>
+                        <td>{{username}}</td>
+                        <td>{{email}}</td>
+                        <td>{{unit}}</td>
+                        <td>{{roles}}</td>
+                        <td>{{status}}</td>
+                        <td>
+                            <button class="edit-user-btn" data-id="{{_id}}" data-fullname="{{fullName}}"
+                                data-username="{{username}}" data-email="{{email}}" data-status="{{status}}"
+                                data-roles="{{roles}}">Sửa</button>
+                            <button>Xóa</button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div id="editUserModal" class="modal" style="display:none;">
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId" name="id">
 
-        <!-- Form Tạo Tài Khoản -->
-        <div id="createAccountForm" style="display:none;">
-            <h3>Tạo Tài Khoản Mới</h3>
+                <label>Họ tên:</label>
+                <input type="text" id="editFullName" name="fullName">
+
+                <label>Tên đăng nhập:</label>
+                <input type="text" id="editUsername" name="username">
+
+                <label>Email:</label>
+                <input type="email" id="editEmail" name="email">
+
+                <label>Trạng thái:</label>
+                <select id="editStatus" name="status">
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                </select>
+
+                <label>Vai trò:</label>
+                <input type="text" id="editRoles" name="roles">
+
+                <button type="submit">Cập nhật</button>
+                <button type="button" onclick="closeEditModal()">Hủy</button>
+            </form>
+        </div>
+
+        <!-- Tab 2: Form tạo tài khoản -->
+        <div id="createForm" class="tab-content">
             <form action="/admin/users/create" method="POST">
-                <!-- Phần 1: Thông tin cơ bản -->
                 <fieldset>
                     <legend>Thông tin cơ bản</legend>
-                    <label for="fullName">Họ và tên:</label>
+                    <label>Họ tên:</label>
                     <input type="text" name="fullName" required>
-                    <label for="username">Tên đăng nhập:</label>
+                    <label>Tên đăng nhập:</label>
                     <input type="text" name="username" required>
-                    <label for="email">Email:</label>
+                    <label>Email:</label>
                     <input type="email" name="email" required>
-                    <label for="phone">Số điện thoại (tuỳ chọn):</label>
+                    <label>Số điện thoại:</label>
                     <input type="text" name="phone">
-                    <label for="password">Mật khẩu:</label>
+                    <label>Mật khẩu:</label>
                     <input type="password" name="password">
                 </fieldset>
 
-                <!-- Phần 2: Thông tin đơn vị và vị trí -->
                 <fieldset>
                     <legend>Thông tin đơn vị và vị trí</legend>
-                    <label for="unit">Đơn vị:</label>
+                    <label>Đơn vị:</label>
                     <select name="unit" required>
-                        <option value="Khoa Công Nghệ Thông Tin">Khoa Công Nghệ Thông Tin</option>
-                        <option value="Khoa Điện Tử Viễn Thông">Khoa Điện Tử Viễn Thông</option>
+                        <option value="CNTT">Khoa Công Nghệ Thông Tin</option>
+                        <option value="ĐTVT">Khoa Điện Tử Viễn Thông</option>
                     </select>
-                    <label for="position">Vị trí:</label>
+                    <label>Vị trí:</label>
                     <input type="text" name="position">
-                    <label for="manager">Quản lý trực tiếp:</label>
+                    <label>Quản lý trực tiếp:</label>
                     <select name="manager">
-                        <option value="">Chọn người quản lý</option>
+                        <option value="">Chọn quản lý</option>
                         {{#each users}}
                         <option value="{{_id}}">{{fullName}}</option>
                         {{/each}}
                     </select>
                 </fieldset>
 
-                <!-- Phần 3: Phân quyền -->
                 <fieldset>
                     <legend>Phân quyền</legend>
-                    <label for="roles">Vai trò:</label>
+                    <label>Vai trò:</label>
                     <select name="roles" multiple required>
-                        <option value="ADMIN">Ban lãnh đạo khoa</option>
+                        <option value="ADMIN">Ban lãnh đạo</option>
                         <option value="DEPARTMENT_HEAD">Trưởng bộ môn</option>
                         <option value="LECTURER">Giảng viên</option>
                         <option value="STAFF">Cán bộ</option>
-                        <option value="PROJECT_HEAD">Trưởng nhóm dự án</option>
+                        <option value="PROJECT_HEAD">Trưởng nhóm</option>
                     </select>
-                    <label for="permissions">Quyền hạn bổ sung:</label>
+                    <label>Quyền bổ sung:</label>
                     <input type="text" name="permissions">
                 </fieldset>
 
@@ -120,12 +230,177 @@
             </form>
         </div>
     </main>
+    <!-- Modal tạo đơn vị mới -->
+    <div id="addDepartmentModal" class="modal" style="display:none;">
+        <form id="addDepartmentForm"
+            style="background:white; padding:20px 30px; border-radius:10px; width:450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display:flex; flex-direction:column; gap:12px;">
+            <h3>Tạo đơn vị mới</h3>
 
+            <label>Tên đơn vị:<span style="color:red">*</span></label>
+            <input type="text" name="departmentName" id="departmentName" required
+                placeholder="Ví dụ: Bộ môn Kỹ thuật phần mềm">
+
+            <label>Mã đơn vị:<span style="color:red">*</span></label>
+            <input type="text" name="departmentCode" id="departmentCode" required placeholder="Ví dụ: BMKTPM">
+
+            <label>Mô tả:</label>
+            <textarea name="description" id="description" rows="3"
+                placeholder="Thông tin chi tiết về đơn vị"></textarea>
+
+            <select name="parentDepartmentId" id="parentDepartmentId">
+                <option value="">-- Không có đơn vị cha --</option>
+                {{#each departments}}
+                <option value="{{this.departmentId}}">{{this.name}}</option>
+
+                {{/each}}
+            </select>
+
+
+
+            <label>Trưởng đơn vị:</label>
+            <select name="headUserId" id="headUserId"> <!-- đúng -->
+                <option value="">-- Chọn trưởng đơn vị --</option>
+                {{#each users}}
+                <option value="{{_id}}">{{fullName}}</option>
+                {{/each}}
+            </select>
+
+            <label>Ngày thành lập:</label>
+            <input type="date" name="establishedDate" id="establishedDate">
+
+            <label>Thứ tự hiển thị:</label>
+            <input type="number" name="displayOrder" id="displayOrder" min="1" placeholder="Tùy chọn">
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                <button type="submit"
+                    style="background-color:#007bff; color:white; padding:8px 15px; border:none; border-radius:6px;">Tạo
+                    đơn vị</button>
+                <button type="button" onclick="closeAddDepartmentModal()"
+                    style="background-color:#6c757d; color:white; padding:8px 15px; border:none; border-radius:6px;">Hủy</button>
+            </div>
+        </form>
+    </div>
     <script>
-        document.getElementById('createAccountBtn').addEventListener('click', function () {
-            const form = document.getElementById('createAccountForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+
+
+        const tabs = {
+            userListTab: document.getElementById('userList'),
+            createAccountTab: document.getElementById('createForm'),
+
+        };
+
+        const buttons = {
+            userListTab: document.getElementById('userListTab'),
+            createAccountTab: document.getElementById('createAccountTab'),
+        };
+
+        for (let btn in buttons) {
+            buttons[btn].addEventListener('click', () => {
+                // Ẩn tất cả tab
+                for (let tab in tabs) {
+                    tabs[tab].classList.remove('active');
+                    buttons[tab].classList.remove('active');
+                }
+
+                // Hiện tab tương ứng
+                tabs[btn].classList.add('active');
+                buttons[btn].classList.add('active');
+            });
+        }
+
+
+        // Mở modal và điền dữ liệu
+        document.querySelectorAll('.edit-user-btn').forEach(button => {
+            button.addEventListener('click', () => {
+
+                document.getElementById('editUserId').value = button.dataset.id;
+                document.getElementById('editFullName').value = button.dataset.fullname;
+                document.getElementById('editUsername').value = button.dataset.username;
+                document.getElementById('editEmail').value = button.dataset.email;
+                document.getElementById('editStatus').value = button.dataset.status;
+                document.getElementById('editRoles').value = button.dataset.roles;
+
+                document.getElementById('editUserModal').style.display = 'flex';
+            });
         });
+
+        // Gửi form cập nhật
+        document.getElementById('editUserForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById('editUserId').value;
+            const data = {
+                fullName: document.getElementById('editFullName').value,
+                username: document.getElementById('editUsername').value,
+                email: document.getElementById('editEmail').value,
+                status: document.getElementById('editStatus').value,
+                roles: document.getElementById('editRoles').value.split(',').map(r => r.trim())
+            };
+
+            const res = await fetch(`/api/users/update/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                alert('Cập nhật thành công');
+                location.reload();
+            } else {
+                alert('Lỗi: ' + result.error);
+            }
+        });
+
+        function closeEditModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+
+
+        // Mở modal tạo đơn vị mới
+        document.getElementById('addDepartmentBtn').addEventListener('click', () => {
+            document.getElementById('addDepartmentModal').style.display = 'flex';
+        });
+
+        // Đóng modal tạo đơn vị mới
+        function closeAddDepartmentModal() {
+            document.getElementById('addDepartmentModal').style.display = 'none';
+        }
+
+        // Xử lý submit form tạo đơn vị mới
+        document.getElementById('addDepartmentForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById('departmentName').value.trim(),
+                code: document.getElementById('departmentCode').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                parentDepartmentId: document.getElementById('parentDepartmentId').value || null,
+                leaderId: document.getElementById('headUserId').value || null,
+                establishedDate: document.getElementById('establishedDate').value || null,
+                displayOrder: document.getElementById('displayOrder').value ? Number(document.getElementById('displayOrder').value) : null
+            };
+
+            // Gửi dữ liệu đến API backend (thay URL cho phù hợp)
+            const res = await fetch('/api/departments/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                alert('Tạo đơn vị mới thành công');
+                closeAddDepartmentModal();
+                location.reload();
+            } else {
+                alert('Lỗi: ' + (result.error || 'Không thể tạo đơn vị'));
+            }
+        });
+
+
     </script>
 </body>
 

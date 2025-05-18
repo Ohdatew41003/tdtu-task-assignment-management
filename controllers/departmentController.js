@@ -2,15 +2,28 @@
 const Department = require('../models/Department');
 
 exports.createDepartment = async (req, res) => {
+  console.log('Received body:', req.body);
+
   try {
-    const { name, description, parentId } = req.body;
+    const {
+      name,
+      code,
+      description,
+      parentDepartmentId,
+      headUserId,
+      establishedDate,
+      displayOrder
+    } = req.body;
 
     const newDepartment = new Department({
-      departmentId: await generateDepartmentId(), // Thêm await
+      departmentId: await generateDepartmentId(),
       name,
+      code,
       description,
-      parentId,
-      path: parentId ? await generatePath(parentId) : '/'
+      parentDepartmentId: parentDepartmentId || null,
+      headUserId: headUserId || null,
+      establishedDate: establishedDate ? new Date(establishedDate) : null,
+      displayOrder: displayOrder || 0,
     });
 
     await newDepartment.save();
@@ -19,6 +32,7 @@ exports.createDepartment = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 exports.getDepartments = async (req, res) => {
   try {

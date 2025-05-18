@@ -1,27 +1,57 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs'); // Thêm thư viện bcryptjs để mã hóa mật khẩu
+const UserRole = require('../models/UserRole');
+const Role = require('../models/Role');
 
-// Lấy danh sách người dùng (trừ mật khẩu)
 const getUsers = async (req, res) => {
     try {
-        const users = await User.find().select('-password');
+        // Lấy tất cả user, bỏ password
+        const users = await User.find().select('-password').lean();
 
-        if (req.originalUrl.startsWith('/admin/users')) {
-            // Nếu truy cập từ giao diện admin
-            res.render('admin/users', { users, user: req.user });
+        // Lấy tất cả UserRole
+        const userRoles = await UserRole.find().lean();
+
+        // Lấy tất cả Role
+        const roles = await Role.find().lean();
+
+        // Tạo map roleId -> roleName để dễ lookup
+        const roleMap = {};
+        roles.forEach(role => {
+            roleMap[role.roleId] = role.roleName;
+        });
+
+        // Thêm thông tin roles cho từng user
+        const usersWithRoles = users.map(user => {
+            const rolesOfUser = userRoles
+                .filter(ur => String(ur.userId) === String(user.userId))
+                .map(ur => roleMap[ur.roleId])
+                .filter(Boolean);
+
+            // In ra roles của user để kiểm tra
+            console.log(`User ${user.username} có roles:`, rolesOfUser);
+
+            return {
+                ...user,
+                roles: rolesOfUser
+            };
+        });
+
+
+        if (req.originalUrl.startsWith('/api/admin/get')) {
+            res.render('admin/index', { users: usersWithRoles, user: req.user });
         } else {
-            // Nếu là API
-            res.json(users);
+            res.json(usersWithRoles);
         }
     } catch (error) {
         console.error(error);
-        if (req.originalUrl.startsWith('/admin/users')) {
+        if (req.originalUrl.startsWith('/api/admin/get')) {
             res.status(500).send('Lỗi khi hiển thị giao diện quản lý người dùng');
         } else {
             res.status(500).json({ error: 'Lỗi khi lấy danh sách người dùng' });
         }
     }
 };
+
 
 // Tạo người dùng mới
 const createUser = async (req, res) => {
@@ -90,6 +120,7 @@ const updateUser = async (req, res) => {
             roles,
             status
         }, { new: true });
+
 
         if (!updatedUser) {
             return res.status(404).json({ error: 'Người dùng không tìm thấy' });

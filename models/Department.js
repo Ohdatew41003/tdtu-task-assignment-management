@@ -1,42 +1,42 @@
 //D:\DACNTT\models\Department.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const departmentSchema = new mongoose.Schema({
-    departmentId: {
+    name: {
         type: String,
-        unique: true,
-        required: true
+        required: true,
+        unique: true, // tên đơn vị duy nhất
+        trim: true,
     },
-    name: { type: String, required: true },
-    description: String,
-    parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
-    path: String,
-    head: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    deputyHead: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    status: {
+    code: {
         type: String,
-        enum: ['ACTIVE', 'INACTIVE'],
-        default: 'ACTIVE'
+        required: true,
+        unique: true, // mã đơn vị duy nhất
+        uppercase: true,
+        trim: true,
     },
-    createdDate: { type: Date, default: Date.now },
-    modifiedDate: { type: Date, default: Date.now }
+    description: {
+        type: String,
+    },
+    parentDepartmentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department',
+        default: null, // nếu null tức là đơn vị cấp cao nhất (ví dụ: Khoa)
+    },
+    headUserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false,
+    },
+    establishedDate: {
+        type: Date,
+    },
+    displayOrder: {
+        type: Number,
+        default: 0,
+    },
+}, {
+    timestamps: true,
 });
 
-// Instance methods
-departmentSchema.methods.getMembers = async function () {
-    return mongoose.model('User').find({ department: this._id });
-};
-
-departmentSchema.methods.addMember = async function (userId) {
-    const user = await mongoose.model('User').findById(userId);
-    user.department = this._id;
-    return user.save();
-};
-
-// Middleware to automatically update modifiedDate
-departmentSchema.pre('save', function (next) {
-    this.modifiedDate = Date.now();
-    next();
-});
-
-module.exports = mongoose.model('Department', departmentSchema);
+export const Department = mongoose.model('Department', departmentSchema);

@@ -4,23 +4,23 @@ const router = express.Router();
 const { login, logout, register } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 
-// Display login form
+// Hiển thị form đăng nhập
 router.get('/login', (req, res) => {
     res.render('auth/login');  // Render trang đăng nhập
 });
 
-router.post('/login', login);  // Đảm bảo rằng route này xử lý POST cho /login
+// Xử lý đăng nhập (POST)
+router.post('/login', login);
 
-
-// Display registration form
+// Hiển thị form đăng ký
 router.get('/register', (req, res) => {
     res.render('auth/register');  // Render trang đăng ký
 });
 
-// Process registration
+// Xử lý đăng ký (POST)
 router.post('/register', register);
 
-// Logout
-router.post('/logout', logout);
+// Đăng xuất (chỉ cho phép user đã đăng nhập mới logout được)
+router.post('/logout', authenticate, logout);
 
 module.exports = router;
