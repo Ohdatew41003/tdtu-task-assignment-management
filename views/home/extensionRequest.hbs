@@ -1,0 +1,65 @@
+<h2>{{title}}</h2>
+
+<!-- Phần hiển thị thông tin công việc và thông tin giao việc -->
+<div class="task-details">
+    <h3>Công việc: {{task.title}}</h3>
+    <p><strong>Mô tả:</strong> {{task.description}}</p>
+    <p><strong>Ngày bắt đầu:</strong> {{formatDate task.startDate}}</p>
+    <p><strong>Deadline hiện tại:</strong> {{formatDate task.endDate}}</p>
+    <p><strong>Loại thời hạn:</strong> {{task.deadlineType}}</p>
+    {{#if task.isRecurring}}
+    <p><strong>Công việc định kỳ:</strong> Có</p>
+    <p><strong>Mẫu lặp:</strong> {{task.recurringPattern}}</p>
+    {{else}}
+    <p><strong>Công việc định kỳ:</strong> Không</p>
+    {{/if}}
+</div>
+
+<div class="assignment-details">
+    <p><strong>Người phụ trách:</strong> {{user.fullName}} (ID: {{user.userId}})</p>
+    <p><strong>Ngày giao việc:</strong> {{formatDate assignment.assignedDate}}</p>
+</div>
+
+<hr>
+
+<h3>Yêu cầu gia hạn</h3>
+<form id="extension-request-form" method="POST" action="/extension/request">
+    <fieldset>
+        <legend>Thông tin gia hạn</legend>
+        <label>Thời hạn hiện tại:</label>
+        <input type="text" name="currentDeadline" value="{{formatDate task.endDate}}" readonly>
+
+        <label>Thời hạn đề xuất:</label>
+        <input type="date" name="proposedDeadline" required>
+
+        <label>Lý do gia hạn:</label>
+        <textarea name="reason" rows="4" required></textarea>
+
+        <label>Tiến độ hiện tại (%):</label>
+        <input type="number" name="currentProgress" min="0" max="100" required>
+
+        <label>Kế hoạch thực hiện:</label>
+        <textarea name="plan" rows="4" required></textarea>
+    </fieldset>
+
+    <button type="submit">Gửi yêu cầu gia hạn</button>
+</form>
+
+<hr>
+<h3>Lịch sử yêu cầu gia hạn</h3>
+<ul class="extension-history">
+    {{#each history}}
+    <li>
+        <strong>Ngày:</strong> {{formatDate this.date}}<br>
+        <strong>Thời hạn hiện tại:</strong> {{formatDate this.currentDeadline}}<br>
+        <strong>Thời hạn đề xuất:</strong> {{formatDate this.proposedDeadline}}<br>
+        <strong>Lý do:</strong> {{this.reason}}<br>
+        <strong>Tiến độ:</strong> {{this.currentProgress}}%<br>
+        <strong>Kế hoạch:</strong> {{this.plan}}<br>
+        <strong>Trạng thái:</strong> {{this.status}}
+    </li>
+    {{/each}}
+    {{#unless history.length}}
+    <li>Chưa có yêu cầu gia hạn nào.</li>
+    {{/unless}}
+</ul>

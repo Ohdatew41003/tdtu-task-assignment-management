@@ -1,0 +1,33 @@
+{{!< layouts/main}} <h2>{{title}}</h2>
+
+    {{#if requests.length}}
+    <ul class="approval-list">
+        {{#each requests}}
+        <li>
+            <p><strong>ID Yêu cầu:</strong> {{this.id}}</p>
+            <p><strong>Người đề nghị (ID):</strong> {{this.userId}}</p>
+            <p><strong>Lý do:</strong> {{this.reason}}</p>
+            <p><strong>Thời hạn hiện tại:</strong> {{formatDate this.currentDeadline}}</p>
+            <p><strong>Thời hạn đề xuất:</strong> {{formatDate this.proposedDeadline}}</p>
+            <p><strong>Tiến độ:</strong> {{this.currentProgress}}%</p>
+            <p><strong>Kế hoạch thực hiện:</strong> {{this.plan}}</p>
+            <p><strong>Ngày yêu cầu:</strong> {{formatDate this.date}}</p>
+
+            <form method="POST" action="/extension/approve/{{this.id}}">
+                <label>
+                    <input type="radio" name="action" value="approve" required> Đồng ý
+                </label>
+                <label>
+                    <input type="radio" name="action" value="reject"> Từ chối
+                </label>
+                <br>
+                <label>Lý do (nếu cần):</label><br>
+                <textarea name="comment" rows="2"></textarea><br>
+                <button type="submit">Gửi</button>
+            </form>
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p>Không có yêu cầu gia hạn nào chờ phê duyệt.</p>
+    {{/if}}
