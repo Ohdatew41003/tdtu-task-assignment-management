@@ -37,6 +37,7 @@ hbs.registerHelper('content', function (name, options) {
   const blocks = this._blocks || (this._blocks = {});
   const block = blocks[name] || (blocks[name] = []);
   block.push(options.fn(this));
+  return date.toLocaleDateString('vi-VN');
 });
 app.set('views', path.join(__dirname, 'views'));
 

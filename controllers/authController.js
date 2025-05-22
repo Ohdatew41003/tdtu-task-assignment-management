@@ -74,7 +74,7 @@ const redirectByRole = (res, roleNames, user) => {
     if (roleNames.includes('DIVISION_HEAD')) return res.render('divisionHead/index', { user });
     if (roleNames.includes('COORDINATOR')) return res.render('coordinator/index', { user });
     if (roleNames.includes('STAFF')) return res.render('staff/index', { user });
-    return res.render('home/extensionRequest', { user });
+    return res.render('home/extensionApprove', { user });
 };
 
 // Hàm chính login gọn hơn

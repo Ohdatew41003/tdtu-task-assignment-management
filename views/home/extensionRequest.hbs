@@ -1,65 +1,183 @@
-<h2>{{title}}</h2>
+<!DOCTYPE html>
+<html lang="vi">
 
-<!-- Phần hiển thị thông tin công việc và thông tin giao việc -->
-<div class="task-details">
-    <h3>Công việc: {{task.title}}</h3>
-    <p><strong>Mô tả:</strong> {{task.description}}</p>
-    <p><strong>Ngày bắt đầu:</strong> {{formatDate task.startDate}}</p>
-    <p><strong>Deadline hiện tại:</strong> {{formatDate task.endDate}}</p>
-    <p><strong>Loại thời hạn:</strong> {{task.deadlineType}}</p>
-    {{#if task.isRecurring}}
-    <p><strong>Công việc định kỳ:</strong> Có</p>
-    <p><strong>Mẫu lặp:</strong> {{task.recurringPattern}}</p>
-    {{else}}
-    <p><strong>Công việc định kỳ:</strong> Không</p>
-    {{/if}}
-</div>
+<head>
+    <meta charset="UTF-8">
+    <title>Yêu cầu gia hạn công việc</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
 
-<div class="assignment-details">
-    <p><strong>Người phụ trách:</strong> {{user.fullName}} (ID: {{user.userId}})</p>
-    <p><strong>Ngày giao việc:</strong> {{formatDate assignment.assignedDate}}</p>
-</div>
+        h2,
+        h3 {
+            text-align: center;
+            color: #333;
+        }
 
-<hr>
+        .task-details,
+        .assignment-details,
+        form,
+        .extension-history {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+        }
 
-<h3>Yêu cầu gia hạn</h3>
-<form id="extension-request-form" method="POST" action="/extension/request">
-    <fieldset>
-        <legend>Thông tin gia hạn</legend>
-        <label>Thời hạn hiện tại:</label>
-        <input type="text" name="currentDeadline" value="{{formatDate task.endDate}}" readonly>
+        .task-details h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
 
-        <label>Thời hạn đề xuất:</label>
-        <input type="date" name="proposedDeadline" required>
+        p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
 
-        <label>Lý do gia hạn:</label>
-        <textarea name="reason" rows="4" required></textarea>
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
 
-        <label>Tiến độ hiện tại (%):</label>
-        <input type="number" name="currentProgress" min="0" max="100" required>
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
 
-        <label>Kế hoạch thực hiện:</label>
-        <textarea name="plan" rows="4" required></textarea>
-    </fieldset>
+        textarea {
+            resize: vertical;
+        }
 
-    <button type="submit">Gửi yêu cầu gia hạn</button>
-</form>
+        button {
+            margin-top: 16px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-<hr>
-<h3>Lịch sử yêu cầu gia hạn</h3>
-<ul class="extension-history">
-    {{#each history}}
-    <li>
-        <strong>Ngày:</strong> {{formatDate this.date}}<br>
-        <strong>Thời hạn hiện tại:</strong> {{formatDate this.currentDeadline}}<br>
-        <strong>Thời hạn đề xuất:</strong> {{formatDate this.proposedDeadline}}<br>
-        <strong>Lý do:</strong> {{this.reason}}<br>
-        <strong>Tiến độ:</strong> {{this.currentProgress}}%<br>
-        <strong>Kế hoạch:</strong> {{this.plan}}<br>
-        <strong>Trạng thái:</strong> {{this.status}}
-    </li>
-    {{/each}}
-    {{#unless history.length}}
-    <li>Chưa có yêu cầu gia hạn nào.</li>
-    {{/unless}}
-</ul>
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        ul.extension-history {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul.extension-history li {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid #007bff;
+            border-radius: 6px;
+        }
+
+        fieldset {
+            border: none;
+            padding: 0;
+        }
+
+        legend {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        hr {
+            margin: 40px auto;
+            max-width: 800px;
+            border: 0;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Yêu cầu gia hạn công việc</h2>
+
+    <!-- Phần hiển thị thông tin công việc và thông tin giao việc -->
+    <div class="task-details">
+        <h3>Công việc: Xây dựng tính năng đánh giá công việc</h3>
+        <p><strong>Mô tả:</strong> Phát triển giao diện và API cho tính năng đánh giá công việc theo phân quyền</p>
+        <p><strong>Ngày bắt đầu:</strong> 01/05/2025</p>
+        <p><strong>Deadline hiện tại:</strong> 25/05/2025</p>
+        <p><strong>Loại thời hạn:</strong> Cứng</p>
+        <p><strong>Công việc định kỳ:</strong> Không</p>
+    </div>
+
+    <div class="assignment-details">
+        <p><strong>Người phụ trách:</strong> Hồ Quốc Đạt (ID: 52100780)</p>
+        <p><strong>Ngày giao việc:</strong> 01/05/2025</p>
+    </div>
+
+    <hr>
+
+    <h3>Yêu cầu gia hạn</h3>
+    <form id="extension-request-form" method="POST" action="/extension/request">
+        <fieldset>
+            <legend>Thông tin gia hạn</legend>
+            <label>Thời hạn hiện tại:</label>
+            <input type="text" name="currentDeadline" value="25/05/2025" readonly>
+
+            <label>Thời hạn đề xuất:</label>
+            <input type="date" name="proposedDeadline" required>
+
+            <label>Lý do gia hạn:</label>
+            <textarea name="reason" rows="4" required></textarea>
+
+            <label>Tiến độ hiện tại (%):</label>
+            <input type="number" name="currentProgress" min="0" max="100" required>
+
+            <label>Kế hoạch thực hiện:</label>
+            <textarea name="plan" rows="4" required></textarea>
+        </fieldset>
+
+        <button type="submit">Gửi yêu cầu gia hạn</button>
+    </form>
+
+    <hr>
+    <h3>Lịch sử yêu cầu gia hạn</h3>
+    <ul class="extension-history">
+        <li>
+            <strong>Ngày:</strong> 15/05/2025<br>
+            <strong>Thời hạn hiện tại:</strong> 25/05/2025<br>
+            <strong>Thời hạn đề xuất:</strong> 30/05/2025<br>
+            <strong>Lý do:</strong> Cần thêm thời gian để xử lý phản hồi từ trưởng khoa<br>
+            <strong>Tiến độ:</strong> 70%<br>
+            <strong>Kế hoạch:</strong> Hoàn thành giao diện trong 2 ngày, backend trong 3 ngày tiếp theo<br>
+            <strong>Trạng thái:</strong> Đang chờ duyệt
+        </li>
+        <li>
+            <strong>Ngày:</strong> 10/05/2025<br>
+            <strong>Thời hạn hiện tại:</strong> 20/05/2025<br>
+            <strong>Thời hạn đề xuất:</strong> 25/05/2025<br>
+            <strong>Lý do:</strong> Chậm tiến độ do thay đổi yêu cầu<br>
+            <strong>Tiến độ:</strong> 50%<br>
+            <strong>Kế hoạch:</strong> Ưu tiên làm backend trước, giao diện sau<br>
+            <strong>Trạng thái:</strong> Đã duyệt
+        </li>
+    </ul>
+
+</body>
+
+</html>

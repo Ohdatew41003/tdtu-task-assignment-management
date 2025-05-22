@@ -1,33 +1,334 @@
-{{!< layouts/main}} <h2>{{title}}</h2>
+<!DOCTYPE html>
+<html lang="vi">
 
-    {{#if requests.length}}
-    <ul class="approval-list">
-        {{#each requests}}
-        <li>
-            <p><strong>ID Yêu cầu:</strong> {{this.id}}</p>
-            <p><strong>Người đề nghị (ID):</strong> {{this.userId}}</p>
-            <p><strong>Lý do:</strong> {{this.reason}}</p>
-            <p><strong>Thời hạn hiện tại:</strong> {{formatDate this.currentDeadline}}</p>
-            <p><strong>Thời hạn đề xuất:</strong> {{formatDate this.proposedDeadline}}</p>
-            <p><strong>Tiến độ:</strong> {{this.currentProgress}}%</p>
-            <p><strong>Kế hoạch thực hiện:</strong> {{this.plan}}</p>
-            <p><strong>Ngày yêu cầu:</strong> {{formatDate this.date}}</p>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Duyệt yêu cầu gia hạn công việc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f9f9f9;
+        }
 
-            <form method="POST" action="/extension/approve/{{this.id}}">
-                <label>
-                    <input type="radio" name="action" value="approve" required> Đồng ý
-                </label>
-                <label>
-                    <input type="radio" name="action" value="reject"> Từ chối
-                </label>
-                <br>
-                <label>Lý do (nếu cần):</label><br>
-                <textarea name="comment" rows="2"></textarea><br>
-                <button type="submit">Gửi</button>
-            </form>
-        </li>
-        {{/each}}
-    </ul>
-    {{else}}
-    <p>Không có yêu cầu gia hạn nào chờ phê duyệt.</p>
-    {{/if}}
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        h2,
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .task-list {
+            margin-bottom: 30px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .task-list th,
+        .task-list td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .task-list th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .task-list tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        input[type="radio"] {
+            cursor: pointer;
+        }
+
+        form label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input[readonly],
+        textarea[readonly] {
+            background: #eee;
+            color: #555;
+        }
+
+        .radio-group {
+            margin-top: 8px;
+        }
+
+        .radio-group label {
+            font-weight: normal;
+            margin-right: 20px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .message.success {
+            color: green;
+        }
+
+        .message.error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Danh sách yêu cầu gia hạn công việc</h2>
+        <table class="task-list" id="task-list-table">
+            <thead>
+                <tr>
+                    <th>Chọn</th>
+                    <th>Ngày yêu cầu</th>
+                    <th>Thời hạn đề xuất</th>
+                    <th>Tiến độ hiện tại (%)</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dữ liệu sẽ được load bằng JS -->
+            </tbody>
+        </table>
+
+        <h3>Chi tiết duyệt yêu cầu</h3>
+        <form id="extension-approve-form">
+            <label for="approveRequestDate">Ngày yêu cầu:</label>
+            <input type="text" id="approveRequestDate" name="approveRequestDate" readonly>
+
+            <label for="approveProposedDeadline">Thời hạn đề xuất:</label>
+            <input type="text" id="approveProposedDeadline" name="approveProposedDeadline" readonly>
+
+            <label for="approveReason">Lý do gia hạn:</label>
+            <textarea id="approveReason" name="approveReason" rows="3" readonly></textarea>
+
+            <label for="approveProgress">Tiến độ hiện tại (%):</label>
+            <input type="number" id="approveProgress" name="approveProgress" readonly>
+
+            <label for="approvePlan">Kế hoạch thực hiện:</label>
+            <textarea id="approvePlan" name="approvePlan" rows="4" readonly></textarea>
+
+            <label>Trạng thái duyệt:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="approvalStatus" value="approved" required> Đồng ý</label>
+                <label><input type="radio" name="approvalStatus" value="rejected" required> Từ chối</label>
+            </div>
+
+            <label for="approvalComment">Ghi chú (nếu có):</label>
+            <textarea id="approvalComment" name="approvalComment" rows="3" placeholder="Nhập ghi chú..."></textarea>
+
+            <button type="submit">Xác nhận duyệt</button>
+            <div id="form-message" class="message"></div>
+        </form>
+    </div>
+
+    <script>
+        // Giả lập nhiều yêu cầu gia hạn
+        const extensionHistory = [
+            {
+                id: 1,
+                requestDate: "2025-05-15",
+                proposedDeadline: "2025-06-01",
+                reason: "Cần thêm thời gian do phát sinh lỗi kỹ thuật.",
+                progress: 70,
+                plan: "Sửa lỗi và kiểm thử lại trong 2 tuần tiếp theo.",
+                status: "Chờ duyệt"
+            },
+            {
+                id: 2,
+                requestDate: "2025-05-10",
+                proposedDeadline: "2025-05-25",
+                reason: "Thiếu nhân lực để hoàn thành đúng hạn.",
+                progress: 50,
+                plan: "Tuyển thêm nhân sự và phân công lại công việc.",
+                status: "Chờ duyệt"
+            },
+            {
+                id: 3,
+                requestDate: "2025-05-12",
+                proposedDeadline: "2025-06-05",
+                reason: "Phần mềm có lỗi phát sinh cần sửa.",
+                progress: 80,
+                plan: "Ưu tiên sửa lỗi và kiểm tra kỹ trước khi bàn giao.",
+                status: "Đã duyệt"
+            }
+        ];
+
+        // Hàm format ngày
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            if (isNaN(d)) return "";
+            return d.toLocaleDateString('vi-VN');
+        }
+
+        const tbody = document.querySelector("#task-list-table tbody");
+        const form = document.getElementById("extension-approve-form");
+        const messageDiv = document.getElementById("form-message");
+
+        // Hàm render bảng danh sách task
+        function renderTaskList() {
+            tbody.innerHTML = "";
+            extensionHistory.forEach(task => {
+                const tr = document.createElement("tr");
+
+                const radioTd = document.createElement("td");
+                if (task.status === "Chờ duyệt") {
+                    const radio = document.createElement("input");
+                    radio.type = "radio";
+                    radio.name = "selectedTask";
+                    radio.value = task.id;
+                    radioTd.appendChild(radio);
+                }
+                tr.appendChild(radioTd);
+
+                const reqDateTd = document.createElement("td");
+                reqDateTd.textContent = formatDate(task.requestDate);
+                tr.appendChild(reqDateTd);
+
+                const deadlineTd = document.createElement("td");
+                deadlineTd.textContent = formatDate(task.proposedDeadline);
+                tr.appendChild(deadlineTd);
+
+                const progressTd = document.createElement("td");
+                progressTd.textContent = task.progress;
+                tr.appendChild(progressTd);
+
+                const statusTd = document.createElement("td");
+                statusTd.textContent = task.status;
+                tr.appendChild(statusTd);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Hàm load dữ liệu task vào form
+        function loadTaskToForm(taskId) {
+            const task = extensionHistory.find(t => t.id === Number(taskId));
+            if (!task) return;
+
+            document.getElementById("approveRequestDate").value = formatDate(task.requestDate);
+            document.getElementById("approveProposedDeadline").value = formatDate(task.proposedDeadline);
+            document.getElementById("approveReason").value = task.reason;
+            document.getElementById("approveProgress").value = task.progress;
+            document.getElementById("approvePlan").value = task.plan;
+
+            // Reset form duyệt
+            form.approvalStatus.value = "";
+            form.approvalComment.value = "";
+            form.querySelectorAll("input, textarea, button").forEach(el => el.disabled = false);
+            messageDiv.textContent = "";
+            messageDiv.className = "message";
+        }
+
+        // Khi chọn radio task sẽ load vào form
+        tbody.addEventListener("change", function (e) {
+            if (e.target.name === "selectedTask") {
+                loadTaskToForm(e.target.value);
+            }
+        });
+
+        // Submit form duyệt
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const selectedRadio = document.querySelector('input[name="selectedTask"]:checked');
+            if (!selectedRadio) {
+                messageDiv.textContent = "Vui lòng chọn một yêu cầu để duyệt.";
+                messageDiv.className = "message error";
+                return;
+            }
+
+            const status = form.approvalStatus.value;
+            const comment = form.approvalComment.value.trim();
+
+            if (!status) {
+                messageDiv.textContent = "Vui lòng chọn trạng thái duyệt.";
+                messageDiv.className = "message error";
+                return;
+            }
+
+            // Cập nhật dữ liệu giả lập
+            const task = extensionHistory.find(t => t.id === Number(selectedRadio.value));
+            task.status = status === "approved" ? "Đã duyệt" : "Từ chối";
+            task.approvalComment = comment;
+            task.approvalDate = new Date().toISOString();
+
+            console.log("Dữ liệu gửi duyệt gia hạn:", {
+                requestId: task.id,
+                approvalStatus: status,
+                approvalComment: comment,
+                approvalDate: task.approvalDate,
+            });
+
+            messageDiv.textContent = `Bạn đã ${status === "approved" ? "đồng ý" : "từ chối"} yêu cầu gia hạn.`;
+            messageDiv.className = "message success";
+
+            // Refresh danh sách để cập nhật trạng thái
+            renderTaskList();
+
+            // Disable form sau duyệt
+            form.querySelectorAll("input, textarea, button").forEach(el => el.disabled = true);
+        });
+
+        // Khởi tạo danh sách và chọn yêu cầu đầu tiên đang chờ duyệt
+        renderTaskList();
+
+        // Tự động chọn radio đầu tiên có trạng thái chờ duyệt
+        const firstPending = document.querySelector('input[name="selectedTask"]');
+        if (firstPending) {
+            firstPending.checked = true;
+            loadTaskToForm(firstPending.value);
+        } else {
+            form.innerHTML = "<p>Không có yêu cầu gia hạn nào đang chờ duyệt.</p>";
+        }
+    </script>
+
+</body>
+
+</html>
