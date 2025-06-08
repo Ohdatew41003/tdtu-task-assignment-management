@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tìm kiếm nâng cao</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .form-section,
+        .results-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            flex: 1;
+        }
+
+        .form-section h2,
+        .results-section h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .result-item {
+            border-left: 5px solid #2ecc71;
+            margin-bottom: 18px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+
+        .result-item p {
+            margin: 5px 0;
+        }
+
+        .result-item strong {
+            color: #2c3e50;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Form tìm kiếm -->
+        <div class="form-section">
+            <h2>Tìm kiếm nâng cao</h2>
+            <form method="GET" action="/search">
+                <div class="form-group">
+                    <label for="date">Ngày thực hiện</label>
+                    <input type="date" name="date" id="date">
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Bộ môn / Đầu mối</label>
+                    <select name="department" id="department">
+                        <option value="">-- Chọn bộ môn --</option>
+                        <option value="CNTT">Công nghệ thông tin</option>
+                        <option value="KTMT">Kỹ thuật máy tính</option>
+                        <option value="TTNT">Trí tuệ nhân tạo</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="task">Tên đầu việc</label>
+                    <input type="text" name="task" id="task" placeholder="Nhập tên công việc">
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Trạng thái</label>
+                    <select name="status" id="status">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="pending">Đang xử lý</option>
+                        <option value="completed">Đã hoàn thành</option>
+                        <option value="late">Trễ hạn</option>
+                    </select>
+                </div>
+
+                <button type="submit">Tìm kiếm</button>
+            </form>
+        </div>
+
+        <!-- Kết quả hiển thị -->
+        <div class="results-section">
+            <h3>Kết quả tìm kiếm</h3>
+
+            <div class="result-item">
+                <p><strong>Tên công việc:</strong> Lập kế hoạch học kỳ</p>
+                <p><strong>Ngày:</strong> 2025-03-12</p>
+                <p><strong>Bộ môn:</strong> Công nghệ thông tin</p>
+                <p><strong>Trạng thái:</strong> Đã hoàn thành</p>
+            </div>
+
+            <div class="result-item">
+                <p><strong>Tên công việc:</strong> Tổ chức hội thảo AI</p>
+                <p><strong>Ngày:</strong> 2025-04-01</p>
+                <p><strong>Bộ môn:</strong> Trí tuệ nhân tạo</p>
+                <p><strong>Trạng thái:</strong> Đang xử lý</p>
+            </div>
+
+            <div class="result-item">
+                <p><strong>Tên công việc:</strong> Kiểm tra tiến độ luận văn</p>
+                <p><strong>Ngày:</strong> 2025-05-15</p>
+                <p><strong>Bộ môn:</strong> Công nghệ thông tin</p>
+                <p><strong>Trạng thái:</strong> Trễ hạn</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
