@@ -1,11 +1,12 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
+
 const { Schema } = mongoose;
-import { v4 as uuidv4 } from 'uuid';
 
 const taskSchema = new Schema({
-    taskId: { type: String, required: true, unique: true, default: () => uuidv4(), }, // UUID chuỗi
+    taskId: { type: String, required: true, unique: true, default: () => uuidv4() },
     title: { type: String, required: true, maxlength: 200 },
-    description: { type: String, required: true }, // text
+    description: { type: String, required: true },
     objective: { type: String, default: null },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
@@ -20,9 +21,9 @@ const taskSchema = new Schema({
         required: true
     },
     isRecurring: { type: Boolean, default: false },
-    recurringPattern: { type: Schema.Types.Mixed, default: null }, // JSON, có thể null
-    createdById: { type: String, default: null }, // FK User, UUID
-    departmentId: { type: String, default: null }, // FK Department, UUID
+    recurringPattern: { type: Schema.Types.Mixed, default: null },
+    createdById: { type: String, default: null },
+    departmentId: { type: String, default: null },
     deadlineType: {
         type: String,
         enum: ['Hard', 'Soft'],
@@ -32,7 +33,6 @@ const taskSchema = new Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-// Validator đảm bảo endDate sau startDate
 taskSchema.pre('save', function (next) {
     if (this.endDate <= this.startDate) {
         return next(new Error('Ngày kết thúc phải sau ngày bắt đầu'));
@@ -43,4 +43,5 @@ taskSchema.pre('save', function (next) {
     next();
 });
 
-export const Task = mongoose.model('Task', taskSchema);
+module.exports = mongoose.models.Task || mongoose.model('Task', taskSchema);
+

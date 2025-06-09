@@ -1,10 +1,7 @@
-//D:\DACNTT\controllers\departmentController.js
-const Department = require('../models/Department.js').Department; // sai nếu export như trên
-
+const Department = require('../models/Department.js'); // import đúng theo CommonJS
+const Counter = require('../models/Counter.js'); // nếu có dùng Counter cho getNextSequence
 
 exports.createDepartment = async (req, res) => {
-
-
   try {
     const {
       name,
@@ -15,16 +12,16 @@ exports.createDepartment = async (req, res) => {
       establishedDate,
       displayOrder
     } = req.body;
+
     const newDepartment = new Department({
       name,
       code,
       description,
-      parentDepartmentId: parentDepartmentId || null, // sửa chỗ này
+      parentDepartmentId: parentDepartmentId || null,
       headUserId: headUserId || null,
       establishedDate: establishedDate ? new Date(establishedDate) : null,
       displayOrder: displayOrder || 0,
     });
-
 
     await newDepartment.save();
     res.status(201).json(newDepartment);
@@ -32,16 +29,14 @@ exports.createDepartment = async (req, res) => {
     console.error('Error creating department:', error);
     res.status(400).json({ message: error.message, stack: error.stack });
   }
-
 };
 
 exports.getDepartments = async (req, res) => {
   try {
     const departments = await Department.find()
-      .populate('departmentId', 'name')
+      .populate('parentDepartmentId', 'name')  // populate đúng field tham chiếu ObjectId
       .lean();
 
-    // Nếu URL là /api/admin/get mới render view
     if (req.originalUrl.startsWith('/api/admin/get')) {
       res.render('admin/index', { departments, user: req.user });
     } else {
@@ -56,8 +51,6 @@ exports.getDepartments = async (req, res) => {
     }
   }
 };
-
-
 
 exports.updateDepartment = async (req, res) => {
   try {
@@ -84,7 +77,6 @@ exports.deleteDepartment = async (req, res) => {
   }
 };
 
-
 // Helper functions
 const getNextSequence = async (name) => {
   const ret = await Counter.findOneAndUpdate(
@@ -97,8 +89,9 @@ const getNextSequence = async (name) => {
 
 const generateDepartmentId = async () => {
   const seq = await getNextSequence('departmentId');
-  return seq.toString(); // Chuyển số thành string
+  return seq.toString();
 };
+
 const generatePath = async (parentId) => {
   const parent = await Department.findOne({ departmentId: parentId });
   if (!parent) throw new Error('Parent department not found');

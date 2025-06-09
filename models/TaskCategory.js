@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const taskCategorySchema = new Schema({
@@ -10,4 +10,4 @@ const taskCategorySchema = new Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-export const TaskCategory = mongoose.model('TaskCategory', taskCategorySchema);
+module.exports = mongoose.model('TaskCategory', taskCategorySchema);

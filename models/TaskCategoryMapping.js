@@ -1,7 +1,5 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
-
-
 
 const taskCategoryMappingSchema = new Schema({
     taskId: { type: String, required: true }, // UUID chuỗi, FK Task
@@ -11,4 +9,4 @@ const taskCategoryMappingSchema = new Schema({
 // Đảm bảo cặp (taskId, categoryId) duy nhất
 taskCategoryMappingSchema.index({ taskId: 1, categoryId: 1 }, { unique: true });
 
-export const TaskCategoryMapping = mongoose.model('TaskCategoryMapping', taskCategoryMappingSchema);
+module.exports = mongoose.model('TaskCategoryMapping', taskCategoryMappingSchema);

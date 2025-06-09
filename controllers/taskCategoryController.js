@@ -1,8 +1,7 @@
-const { TaskCategory } = require('../models/taskCategory');
+const TaskCategory = require('../models/TaskCategory');
 const { v4: uuidv4 } = require('uuid');
 
-// Tạo mới loại công tác
-const createTaskCategory = async (req, res) => {
+exports.createTaskCategory = async (req, res) => {
     try {
         const newCategory = new TaskCategory({
             ...req.body,
@@ -15,8 +14,7 @@ const createTaskCategory = async (req, res) => {
     }
 };
 
-// Lấy tất cả loại công tác
-const getAllTaskCategories = async (req, res) => {
+exports.getAllTaskCategories = async (req, res) => {
     try {
         const categories = await TaskCategory.find();
         res.json(categories);
@@ -25,8 +23,7 @@ const getAllTaskCategories = async (req, res) => {
     }
 };
 
-// Lấy loại công tác theo categoryId
-const getTaskCategoryById = async (req, res) => {
+exports.getTaskCategoryById = async (req, res) => {
     try {
         const category = await TaskCategory.findOne({ categoryId: req.params.id });
         if (!category) return res.status(404).json({ message: "Không tìm thấy loại công tác" });
@@ -36,8 +33,7 @@ const getTaskCategoryById = async (req, res) => {
     }
 };
 
-// Cập nhật loại công tác
-const updateTaskCategory = async (req, res) => {
+exports.updateTaskCategory = async (req, res) => {
     try {
         const updatedCategory = await TaskCategory.findOneAndUpdate(
             { categoryId: req.params.id },
@@ -51,8 +47,7 @@ const updateTaskCategory = async (req, res) => {
     }
 };
 
-// Xóa loại công tác
-const deleteTaskCategory = async (req, res) => {
+exports.deleteTaskCategory = async (req, res) => {
     try {
         const deletedCategory = await TaskCategory.findOneAndDelete({ categoryId: req.params.id });
         if (!deletedCategory) return res.status(404).json({ message: "Không tìm thấy loại công tác" });
@@ -60,12 +55,4 @@ const deleteTaskCategory = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
-
-module.exports = {
-    createTaskCategory,
-    getAllTaskCategories,
-    getTaskCategoryById,
-    updateTaskCategory,
-    deleteTaskCategory
 };

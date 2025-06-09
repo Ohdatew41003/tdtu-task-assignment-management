@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';  // thư viện tạo UUID
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');  // thư viện tạo UUID
 
 const departmentSchema = new mongoose.Schema({
     departmentId: {
@@ -27,7 +27,7 @@ const departmentSchema = new mongoose.Schema({
     parentDepartmentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Department',
-        default: null, // nếu null tức là đơn vị cấp cao nhất (ví dụ: Khoa)
+        default: null, // đơn vị cấp cao nhất nếu null
     },
     headUserId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -45,4 +45,4 @@ const departmentSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-export const Department = mongoose.model('Department', departmentSchema);
+module.exports = mongoose.model('Department', departmentSchema);

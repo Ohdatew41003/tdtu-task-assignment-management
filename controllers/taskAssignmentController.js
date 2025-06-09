@@ -38,7 +38,6 @@ const createTaskAssignment = async (req, res) => {
             reportedById: assignedById,
             progressPercentage: 0,
             description: 'Khởi tạo tiến độ sau khi phân công thành công',
-            reportDate: new Date(),
             createdAt: new Date(),
             updatedAt: new Date(),
         });

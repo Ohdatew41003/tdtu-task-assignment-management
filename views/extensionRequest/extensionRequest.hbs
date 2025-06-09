@@ -170,7 +170,6 @@
             <ul>
                 <li><a href="/api/admin/index">Trang Admin</a></li>
                 <li><a href="/api/admin/get">Quản lý người dùng</a></li>
-
                 <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
                 <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
                 <li><a href="/api/tasks/evalution">Đánh giá</a></li>
@@ -186,112 +185,217 @@
 
     <section>
 
-        <!-- Form đề nghị gia hạn -->
         <div class="form-container">
             <h2>Form Yêu Cầu Gia Hạn</h2>
-            <form>
+            <form id="extensionRequestForm">
                 <label for="taskSelect">Chọn công việc</label>
-                <select id="taskSelect" name="taskId">
-                    <option value="1">Tổng hợp kết quả học tập sinh viên</option>
-                    <option value="2">Báo cáo tình hình nghiên cứu khoa học giảng viên</option>
-                    <option value="3">Xây dựng nội dung học phần mới</option>
-                    <option value="4">Tổ chức buổi báo cáo seminar</option>
-                    <option value="5">Cập nhật tiến độ khóa luận tốt nghiệp</option>
+                <select id="taskSelect" name="taskId" required>
+                    <option value="">-- Đang tải danh sách công việc --</option>
+
                 </select>
 
+                <label for="proposeNewEndDate">Thời hạn đề xuất mới</label>
+                <input type="date" id="proposeNewEndDate" name="proposeNewEndDate" required />
+
                 <label for="reason">Lý do yêu cầu gia hạn</label>
-                <textarea id="reason" name="reason" rows="4" placeholder="Nhập lý do gia hạn..."></textarea>
+                <textarea id="reason" name="reason" rows="4" placeholder="Nhập lý do gia hạn..." required></textarea>
 
                 <button type="submit">Gửi yêu cầu</button>
             </form>
+            <div id="formMessage" style="color: green; margin-top: 10px;"></div>
         </div>
 
-        <!-- Lịch sử yêu cầu gia hạn -->
-        <div class="list-container">
-            <h2>Lịch Sử Yêu Cầu Gia Hạn</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Công việc</th>
-                        <th>Người yêu cầu</th>
-                        <th>Lý do</th>
-                        <th>Ngày yêu cầu</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Tổng hợp kết quả học tập sinh viên</td>
-                        <td>Giangvien</td>
-                        <td>Cần thêm thời gian thu thập dữ liệu</td>
-                        <td>10/05/2025</td>
-                        <td>Chờ duyệt</td>
-                    </tr>
-                    <tr>
-                        <td>Báo cáo nghiên cứu khoa học</td>
-                        <td>Giangvien</td>
-                        <td>Phải chỉnh sửa báo cáo theo góp ý</td>
-                        <td>09/05/2025</td>
-                        <td>Đã duyệt</td>
-                    </tr>
-                    <tr>
-                        <td>Khóa luận tốt nghiệp</td>
-                        <td>Giangvien</td>
-                        <td>Gặp khó khăn trong quá trình thu thập dữ liệu</td>
-                        <td>08/05/2025</td>
-                        <td>Từ chối</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Danh sách phê duyệt gia hạn (dành cho trưởng/phó khoa) -->
+        <!-- Danh sách yêu cầu gia hạn (Phê duyệt) -->
         <div class="list-container">
             <h2>Danh Sách Yêu Cầu Gia Hạn (Phê duyệt)</h2>
-            <table>
+            <table id="extensionRequestList">
                 <thead>
                     <tr>
                         <th>Công việc</th>
                         <th>Người yêu cầu</th>
                         <th>Lý do</th>
                         <th>Ngày yêu cầu</th>
+                        <th>Trạng thái</th> <!-- Thêm cột trạng thái -->
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Tổng hợp kết quả học tập sinh viên</td>
-                        <td>Nguyễn Văn A</td>
-                        <td>Cần thêm thời gian thu thập dữ liệu</td>
-                        <td>10/05/2025</td>
-                        <td>
-                            <button class="btn-approve">Đồng ý</button>
-                            <button class="btn-reject">Từ chối</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Khóa luận tốt nghiệp</td>
-                        <td>Phạm Gia Huy</td>
-                        <td>Gặp khó khăn trong quá trình thu thập dữ liệu</td>
-                        <td>08/05/2025</td>
-                        <td>
-                            <button class="btn-approve">Đồng ý</button>
-                            <button class="btn-reject">Từ chối</button>
-                        </td>
-                    </tr>
+                <tbody id="extensionRequestListBody">
+                    <!-- Dữ liệu sẽ được thêm bằng JS -->
                 </tbody>
             </table>
-
-            <h3>Phê duyệt / Từ chối với lý do</h3>
-            <form>
-                <label for="approvalReason">Lý do phê duyệt/từ chối</label>
-                <textarea id="approvalReason" name="approvalReason" rows="3" placeholder="Nhập lý do..."></textarea>
-
-                <button type="submit">Gửi</button>
-            </form>
         </div>
 
+
+
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskSelect = document.getElementById('taskSelect');
+            const formMessage = document.getElementById('formMessage');
+            const extensionRequestListBody = document.getElementById('extensionRequestListBody');
+            const extensionRequestForm = document.getElementById('extensionRequestForm');
+
+            // Hàm format ngày theo kiểu Việt Nam
+            function formatDate(dateString) {
+                const d = new Date(dateString);
+                return d.toLocaleDateString('vi-VN');
+            }
+
+            // Hàm lấy danh sách công việc và fill vào select
+            async function loadTasks() {
+                try {
+                    const response = await fetch('/api/taskExtensionRequestRoutes/task-assignments');
+                    if (!response.ok) throw new Error('Lấy danh sách công việc thất bại');
+
+                    const tasks = await response.json(); // [{ taskId, taskTitle, progressId }, ...]
+                    taskSelect.innerHTML = '<option value="">-- Chọn công việc --</option>';
+                    tasks.forEach(task => {
+                        const option = document.createElement('option');
+                        option.value = task.taskId;
+                        option.textContent = task.taskTitle;
+                        option.dataset.requestedById = task.progressId || '';
+                        taskSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Lỗi khi lấy công việc:', error);
+                    taskSelect.innerHTML = '<option value="">Không thể tải danh sách công việc</option>';
+                }
+            }
+
+            // Hàm lấy danh sách yêu cầu gia hạn và render bảng
+            async function loadExtensionRequests() {
+                try {
+                    const res = await fetch('/api/taskExtensionRequestRoutes/getname');
+                    if (!res.ok) throw new Error('Lấy danh sách yêu cầu thất bại');
+
+                    const extensionRequests = await res.json();
+                    extensionRequestListBody.innerHTML = ''; // Xóa dữ liệu cũ
+
+                    extensionRequests.forEach(req => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                    <td>${req.taskId || ''}</td>
+                    <td>${req.requestedById || ''}</td>
+                    <td>${req.reason || ''}</td>
+                    <td>${req.status || ''}</td>
+                    <td>${formatDate(req.createdAt)}</td>
+                    <td>
+                        <button class="btn-approve" data-id="${req.extensionRequestId}">Đồng ý</button>
+                        <button class="btn-reject" data-id="${req.extensionRequestId}">Từ chối</button>
+                    </td>
+                `;
+                        extensionRequestListBody.appendChild(tr);
+                    });
+
+                    attachApprovalHandlers(); // Gán sự kiện cho nút đồng ý/từ chối
+                } catch (error) {
+                    console.error(error);
+                    alert('Lỗi khi tải danh sách yêu cầu gia hạn');
+                }
+            }
+
+            // Hàm gán sự kiện cho nút duyệt/từ chối
+            function attachApprovalHandlers() {
+                document.querySelectorAll('.btn-approve').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const id = e.target.dataset.id;
+
+                        try {
+                            const res = await fetch(`/api/taskExtensionRequestRoutes/${id}/approve`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    status: 'Approved',
+                                    adminComment: '',          // nếu cần có thể thêm dữ liệu khác
+                                    progressDescription: '',
+                                    progressPercentage: null,
+                                })
+                            });
+
+                            if (res.ok) {
+                                alert('Đã duyệt yêu cầu');
+                                loadExtensionRequests();
+                            } else alert('Duyệt yêu cầu thất bại');
+                        } catch (error) {
+                            console.error(error);
+                            alert('Lỗi duyệt yêu cầu');
+                        }
+                    };
+                });
+
+                document.querySelectorAll('.btn-reject').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const id = e.target.dataset.id;
+                        try {
+                            const res = await fetch(`/api/taskExtensionRequestRoutes/${id}/reject`, { method: 'POST' });
+                            if (res.ok) {
+                                alert('Đã từ chối yêu cầu');
+                                loadExtensionRequests();
+                            } else alert('Từ chối yêu cầu thất bại');
+                        } catch (error) {
+                            console.error(error);
+                            alert('Lỗi từ chối yêu cầu');
+                        }
+                    };
+                });
+            }
+
+            // Xử lý gửi form yêu cầu gia hạn
+            extensionRequestForm.addEventListener('submit', async e => {
+                e.preventDefault();
+
+                const taskId = taskSelect.value;
+                const proposeNewEndDate = document.getElementById('proposeNewEndDate').value;
+                const reason = document.getElementById('reason').value.trim();
+
+                const selectedOption = taskSelect.options[taskSelect.selectedIndex];
+                const taskProgressId = selectedOption ? selectedOption.dataset.requestedById || '' : '';
+
+                if (!taskId || !reason.trim() || !proposeNewEndDate || !taskProgressId) {
+                    console.log('Thiếu thông tin:', {
+                        taskId,
+                        reason: reason.trim(),
+                        proposeNewEndDate,
+                        taskProgressId
+                    });
+
+                    alert('Vui lòng chọn công việc, nhập lý do và ngày kết thúc đề xuất');
+                    return;
+                }
+
+
+                try {
+                    const res = await fetch('/api/taskExtensionRequestRoutes/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ taskId, proposeNewEndDate, reason, taskProgressId })
+                    });
+
+                    if (res.ok) {
+                        formMessage.textContent = 'Gửi yêu cầu thành công';
+                        e.target.reset();
+                        setTimeout(() => location.reload(), 1500);
+
+
+                    } else {
+                        const data = await res.json();
+                        alert('Lỗi: ' + (data.message || 'Gửi yêu cầu thất bại'));
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Lỗi khi gửi yêu cầu');
+                }
+            });
+
+            // Khởi tạo dữ liệu khi load trang
+            loadTasks();
+            loadExtensionRequests();
+        });
+    </script>
+
 
 </body>
 

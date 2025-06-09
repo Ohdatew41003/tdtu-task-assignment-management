@@ -1,4 +1,4 @@
-const { TaskCategoryMapping } = require('../models/TaskCategoryMapping');
+const TaskCategoryMapping = require('../models/TaskCategoryMapping');
 
 exports.getAllTaskCategoryMappings = async (req, res) => {
     try {
@@ -8,7 +8,7 @@ exports.getAllTaskCategoryMappings = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-// Tạo mới mapping Task <-> TaskCategory
+
 exports.createTaskCategoryMapping = async (req, res) => {
     const { taskId, categoryId } = req.body;
     if (!taskId || !categoryId) {
@@ -16,7 +16,6 @@ exports.createTaskCategoryMapping = async (req, res) => {
     }
 
     try {
-        // Kiểm tra mapping đã tồn tại chưa
         const existing = await TaskCategoryMapping.findOne({ taskId, categoryId });
         if (existing) {
             return res.status(400).json({ message: 'Mapping này đã tồn tại' });

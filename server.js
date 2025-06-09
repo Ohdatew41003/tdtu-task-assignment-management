@@ -17,7 +17,7 @@ const taskAssignmentRouter = require('./routes/taskAssignmentRouter');
 const taskProgressRouter = require('./routes/taskProgressRouter');
 const evaluationRouters = require('./routes/evaluationRoutes');
 const extensionRequestRouter = require('./routes/extensionRequest');
-
+const taskExtensionRequestRoutes = require('./routes/taskExtensionRequestRoutes');
 // Models
 const User = require('./models/User');
 const RoleModel = require('./models/Role');
@@ -71,6 +71,7 @@ const startServer = async () => {
     app.use('/api/taskProgress', taskProgressRouter);
     app.use('/api/evaluations', evaluationRouters);
     app.use('/api/extensionRequest', extensionRequestRouter);
+    app.use('/api/taskExtensionRequestRoutes', taskExtensionRequestRoutes);
     // Start server
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {

@@ -1,6 +1,6 @@
-import { Task } from '../models/task.js';
+const Task = require('../models/task');
 
-export const getTasks = async (req, res) => {
+const getTasks = async (req, res) => {
     try {
         const tasks = await Task.find();
         res.json(tasks);
@@ -9,7 +9,7 @@ export const getTasks = async (req, res) => {
     }
 };
 
-export const createTask = async (req, res) => {
+const createTask = async (req, res) => {
     try {
         const newTask = new Task(req.body);
         await newTask.save();
@@ -19,8 +19,7 @@ export const createTask = async (req, res) => {
     }
 };
 
-
-export const updateTask = async (req, res) => {
+const updateTask = async (req, res) => {
     try {
         const updatedTask = await Task.findOneAndUpdate(
             { taskId: req.params.id },  // tìm theo taskId, không phải _id
@@ -36,7 +35,7 @@ export const updateTask = async (req, res) => {
     }
 };
 
-export const deleteTask = async (req, res) => {
+const deleteTask = async (req, res) => {
     try {
         const deletedTask = await Task.findOneAndDelete({ taskId: req.params.id });
         if (!deletedTask) return res.status(404).json({ message: "Không tìm thấy task" });
@@ -46,7 +45,7 @@ export const deleteTask = async (req, res) => {
     }
 };
 
-export const getTaskById = async (req, res) => {
+const getTaskById = async (req, res) => {
     try {
         const task = await Task.findOne({ taskId: req.params.id });
         if (!task) return res.status(404).json({ message: "Không tìm thấy task" });
@@ -54,4 +53,13 @@ export const getTaskById = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+// export theo kiểu CommonJS
+module.exports = {
+    getTasks,
+    createTask,
+    updateTask,
+    deleteTask,
+    getTaskById
 };
