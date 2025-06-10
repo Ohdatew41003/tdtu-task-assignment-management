@@ -8,5 +8,10 @@ router.get("/get", authenticate, getUsers);
 router.post("/create", authenticate, createUser);
 router.put("/update/:id", authenticate, updateUser);
 
-
+router.get('/user', authenticate, (req, res) => {
+    res.render('user/index', {
+        title: 'Quản lý Nguời dùng',
+        user: req.user
+    });
+});
 module.exports = router;

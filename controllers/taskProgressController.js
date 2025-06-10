@@ -2,9 +2,53 @@ const TaskProgress = require('../models/TaskProgress');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
+const Document = require('../models/Document');
 
-// Tạo tiến độ mới
-exports.createTaskProgress = async (req, res) => {
+// Thư mục uploads
+const UPLOADS_BASE_PATH = path.join(__dirname, '..', 'uploads');
+
+// Giả lập lấy tên file từ taskAssignmentId (sau này thay bằng DB thật)
+
+
+// Controller download
+const downloadAttachment = function (req, res) {
+    const progressId = req.params.progressId;
+    console.log('Download request for progressId:', progressId);
+
+    try {
+        const dirPath = path.join(UPLOADS_BASE_PATH, progressId);
+        console.log('Checking directory:', dirPath);
+
+        if (!fs.existsSync(dirPath)) {
+            return res.status(404).send('Không tìm thấy thư mục cho progressId này');
+        }
+
+        // Lấy danh sách file trong thư mục
+        const files = fs.readdirSync(dirPath);
+        console.log('Files in directory:', files);
+
+        if (files.length === 0) {
+            return res.status(404).send('Không có file nào trong thư mục');
+        }
+
+        // Giả sử chỉ có 1 file cần download
+        const fileName = files[0];
+        const filePath = path.join(dirPath, fileName);
+
+        res.download(filePath, fileName, function (err) {
+            if (err) {
+                console.error('Lỗi khi gửi file:', err);
+                res.status(500).send('Lỗi khi gửi file');
+            }
+        });
+
+    } catch (error) {
+        console.error('Lỗi server:', error);
+        res.status(500).send('Lỗi server');
+    }
+};
+
+const createTaskProgress = async (req, res) => {
     try {
         const { taskId, reportedById, progressPercentage, description, issues } = req.body;
 
@@ -33,8 +77,7 @@ exports.createTaskProgress = async (req, res) => {
     }
 };
 
-// Lấy tất cả tiến độ
-exports.getAllTaskProgress = async (req, res) => {
+const getAllTaskProgress = async (req, res) => {
     try {
         const taskProgressList = await TaskProgress.find().lean();
         return res.status(200).json({ data: taskProgressList });
@@ -44,8 +87,7 @@ exports.getAllTaskProgress = async (req, res) => {
     }
 };
 
-// Cập nhật tiến độ (có upload file)
-exports.updateProgress = async (req, res) => {
+const updateProgress = async (req, res) => {
     try {
         const { progressId } = req.params;
         const { progressPercentage, description, issues } = req.body;
@@ -59,16 +101,37 @@ exports.updateProgress = async (req, res) => {
         if (description !== undefined) taskProgress.description = description;
         if (issues !== undefined) taskProgress.issues = issues;
 
-        // Nếu có file upload, xóa file cũ nếu có rồi lưu file mới
+        // Nếu có file upload → lưu Document mới → lưu documentId vào attachment
         if (req.file) {
+            // Nếu trước đó đã có attachment (documentId), xóa document cũ + xóa file cũ
             if (taskProgress.attachment) {
-                // Xóa file cũ (nếu có)
-                const oldPath = path.join(__dirname, '..', taskProgress.attachment);
-                if (fs.existsSync(oldPath)) {
-                    fs.unlinkSync(oldPath);
+                const oldDocument = await Document.findOne({ documentId: taskProgress.attachment });
+                if (oldDocument) {
+                    // Xóa file vật lý trên ổ đĩa
+                    const oldFilePath = path.join(__dirname, '..', oldDocument.filePath);
+                    if (fs.existsSync(oldFilePath)) {
+                        fs.unlinkSync(oldFilePath);
+                    }
+
+                    // Xóa document record trong DB
+                    await Document.deleteOne({ documentId: taskProgress.attachment });
                 }
             }
-            taskProgress.attachment = path.join('uploads', req.file.filename);
+
+            // Tạo Document mới
+            const newDocumentId = uuidv4();
+            const document = new Document({
+                documentId: newDocumentId,
+                title: req.file.originalname,
+                description: `File đính kèm cho tiến độ ${progressId}`,
+                filePath: path.join('uploads', progressId, req.file.filename), // ➜ đúng yêu cầu của bạn
+                uploadedById: taskProgress.reportedById, // người báo cáo
+                relatedTaskId: taskProgress.taskId
+            });
+            await document.save();
+
+            // Lưu documentId vào field attachment
+            taskProgress.attachment = newDocumentId;
         }
 
         taskProgress.updatedAt = new Date();
@@ -82,8 +145,9 @@ exports.updateProgress = async (req, res) => {
     }
 };
 
-// Xóa tiến độ (nếu cần)
-exports.deleteProgress = async (req, res) => {
+
+
+const deleteProgress = async (req, res) => {
     try {
         const { progressId } = req.params;
         const taskProgress = await TaskProgress.findOne({ progressId });
@@ -106,4 +170,12 @@ exports.deleteProgress = async (req, res) => {
         console.error(error);
         return res.status(500).json({ message: 'Lỗi server khi xóa tiến độ công việc' });
     }
+};
+
+module.exports = {
+    createTaskProgress,
+    getAllTaskProgress,
+    updateProgress,
+    deleteProgress,
+    downloadAttachment
 };

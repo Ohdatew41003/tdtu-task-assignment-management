@@ -1,6 +1,7 @@
 const TaskAssignment = require('../models/TaskAssignment');
 const { v4: uuidv4 } = require('uuid');
 const TaskProgress = require('../models/TaskProgress');
+const Task = require('../models/Task'); // Import model Task để cập nhật trạng thái
 const getTaskAssignments = async (req, res) => {
     try {
         const assignments = await TaskAssignment.find().lean();
@@ -31,7 +32,7 @@ const createTaskAssignment = async (req, res) => {
 
         await newAssignment.save();
 
-        // Tạo TaskProgress tương ứng với progressPercentage = 0
+        // Tạo TaskProgress tương ứng
         const newProgress = new TaskProgress({
             progressId: uuidv4(),
             taskId,
@@ -44,8 +45,14 @@ const createTaskAssignment = async (req, res) => {
 
         await newProgress.save();
 
+        // ✅ Cập nhật trạng thái Task thành InProgress
+        await Task.findOneAndUpdate(
+            { taskId }, // Giả sử taskId là UUID trong DB
+            { status: 'InProgress', updatedAt: new Date() }
+        );
+
         res.status(201).json({
-            message: 'Phân công thành công và tạo tiến độ công việc thành công',
+            message: 'Phân công thành công, tạo tiến độ và cập nhật trạng thái công việc thành InProgress',
             assignment: newAssignment,
             progress: newProgress
         });
@@ -54,6 +61,7 @@ const createTaskAssignment = async (req, res) => {
         res.status(500).json({ error: 'Lỗi tạo phân công', details: error.message });
     }
 };
+
 
 module.exports = {
     getTaskAssignments,

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Đánh giá giảng viên cuối năm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 15px;
+            background-color: #0056b3;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #003366;
+        }
+
+        nav ul li form button {
+            padding: 10px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li form button:hover {
+            background-color: #c82333;
+        }
+
+        section {
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .form-container,
+        .list-container,
+        .detail-container {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        .info p {
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        .info span {
+            font-weight: bold;
+            color: #333;
+        }
+
+        #autoEvaluation {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #856404;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: #777;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Đánh giá giảng viên cuối năm</h1>
+        <nav>
+            <ul>
+                <li><a href="/api/admin/index">Trang Admin</a></li>
+                <li><a href="/api/users/user">Quản lý người dùng</a></li>
+                <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
+                <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
+                <li><a href="/api/tasks/evalution">Đánh giá</a></li>
+                <li><a href="/api/extensionRequest/extensionRequest">Gia hạn</a></li>
+                <li>
+                    <form action="/api/auth/logout" method="POST">
+                        <button type="submit">Đăng Xuất</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <footer>
+        © Đánh giá giảng viên - Phiên bản đang phát triển thêm...
+    </footer>
+    <section>
+        <div class="form-container">
+            <label for="userSelect">Chọn giảng viên:</label>
+            <select id="userSelect">
+                <option value="">-- Chọn giảng viên --</option>
+                <!-- Option sẽ được load tự động -->
+            </select>
+        </div>
+
+        <div class="detail-container">
+            <h2>Thông tin giảng viên</h2>
+            <div class="info">
+                <p><strong>Họ tên:</strong> <span id="fullName"></span></p>
+                <p><strong>Vai trò:</strong> <span id="role"></span></p>
+                <p><strong>Nhiệm vụ đang tiến hành:</strong> <span id="inProgress">0</span></p>
+                <p><strong>Nhiệm vụ hoàn thành:</strong> <span id="completed">0</span></p>
+                <p><strong>Nhiệm vụ đã huỷ:</strong> <span id="cancelled">0</span></p>
+            </div>
+            <div id="autoEvaluation">
+                Đánh giá tự động: <span id="evaluationResult">...</span>
+            </div>
+        </div>
+    </section>
+
+
+
+    <script>
+        // Hàm load danh sách user lên dropdown
+        function loadUsers() {
+            fetch('/api/users/get')
+                .then(response => response.json())
+                .then(users => {
+                    const userSelect = document.getElementById('userSelect');
+                    users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.userId;
+                        option.textContent = user.fullName;
+                        userSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Lỗi khi load user:', error));
+        }
+
+        // Hàm đánh giá tự động
+        function autoEvaluate(inProgress, completed, cancelled) {
+            if (completed >= inProgress && cancelled === 0) {
+                return "Tốt";
+            } else if (cancelled > 2) {
+                return "Chưa tốt";
+            } else if (inProgress > completed) {
+                return "Cần cải thiện";
+            } else {
+                return "Đang phát triển...";
+            }
+        }
+
+        // Khi chọn user thì lấy thống kê
+        document.getElementById('userSelect').addEventListener('change', function () {
+            const userId = this.value;
+            if (!userId) return;
+
+            fetch(`/api/evaluations/stats/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('fullName').textContent = data.fullName;
+                    document.getElementById('role').textContent = data.role;
+                    document.getElementById('inProgress').textContent = data.inProgress;
+                    document.getElementById('completed').textContent = data.completed;
+                    document.getElementById('cancelled').textContent = data.cancelled;
+
+                    // Đánh giá tự động
+                    const evaluation = autoEvaluate(data.inProgress, data.completed, data.cancelled);
+                    document.getElementById('evaluationResult').textContent = evaluation;
+                })
+                .catch(error => console.error('Lỗi:', error));
+        });
+
+        // Gọi hàm load khi trang vừa load
+        window.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+
+</body>
+
+</html>

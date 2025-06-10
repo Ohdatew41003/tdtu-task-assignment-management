@@ -42,7 +42,7 @@ const getUsers = async (req, res) => {
 
 
         if (req.originalUrl.startsWith('/api/admin/get')) {
-            res.render('admin/index', { users: usersWithRoles, user: req.user });
+            res.render('user/index', { users: usersWithRoles, user: req.user });
         } else {
             res.json(usersWithRoles);
         }

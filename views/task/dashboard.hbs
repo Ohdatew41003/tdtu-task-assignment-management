@@ -277,12 +277,12 @@
         <nav>
             <ul>
                 <li><a href="/api/admin/index">Trang Admin</a></li>
-                <li><a href="/api/admin/get">Quản lý người dùng</a></li>
+                <li><a href="/api/users/user">Quản lý người dùng</a></li>
 
                 <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
                 <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
                 <li><a href="/api/tasks/evalution">Đánh giá</a></li>
-                <li><a href="/api/extensionRequest/extensionRequest">Gia hạn(đang phát triển)</a></li>
+                <li><a href="/api/extensionRequest/extensionRequest">Gia hạn</a></li>
                 <li>
                     <form action="/api/auth/logout" method="POST">
                         <button type="submit">Đăng Xuất</button>
@@ -398,36 +398,35 @@
         let users = [];
         let tasks = [];
         let taskProcess = [];
+        let documents = [];
 
-        // Hàm load đồng thời tasks và users, rồi render danh sách task-user
         async function loadAllData() {
             try {
-                const [tasksRes, usersRes] = await Promise.all([
+                const [tasksRes, usersRes, documentsRes] = await Promise.all([
                     fetch('/api/tasks/get'),
-                    fetch('/api/users/get')
+                    fetch('/api/users/get'),
+                    fetch('/api/documents/get') // API trả về mảng Document
                 ]);
 
-                if (!tasksRes.ok || !usersRes.ok) {
-                    throw new Error('Lỗi khi tải dữ liệu tasks hoặc users');
+                if (!tasksRes.ok || !usersRes.ok || !documentsRes.ok) {
+                    throw new Error('Lỗi khi tải dữ liệu');
                 }
 
                 tasks = await tasksRes.json();
                 users = await usersRes.json();
+                documents = await documentsRes.json();
 
-
-                if (!Array.isArray(tasks) || !Array.isArray(users)) {
-                    throw new Error('Dữ liệu tasks hoặc users không đúng định dạng');
+                if (!Array.isArray(tasks) || !Array.isArray(users) || !Array.isArray(documents)) {
+                    throw new Error('Dữ liệu không đúng định dạng');
                 }
 
-                // Không gọi renderTaskAndUser ở đây nữa, vì bạn muốn hiển thị trong phần tiến độ công việc
-
-                // Tiếp tục load dữ liệu tiến độ công việc
                 await loadTaskProgress();
 
             } catch (error) {
                 console.error('Lỗi:', error);
             }
         }
+
 
         // Hàm render danh sách công việc và tên người làm
         function renderTaskAndUser(tasks, users) {
@@ -499,14 +498,20 @@
 
                 let fileAttachmentHTML = '';
                 if (typeof taskProgress.attachment === 'string' && taskProgress.attachment.trim() !== '') {
-                    const fileUrl = taskProgress.attachment.replace(/\\/g, '/'); // normalize path
-                    const fileName = fileUrl.split('/').pop();
-                    fileAttachmentHTML = `
-                <p><strong>File đính kèm:</strong>
-                    <a href="${fileUrl}" target="_blank" download>${fileName}</a>
-                </p>
-            `;
+                    const documentObj = documents.find(doc => doc.documentId === taskProgress.attachment);
+                    if (documentObj) {
+                        const fileTitle = documentObj.title;
+                        fileAttachmentHTML = `
+            <p><strong>File đính kèm:</strong>
+                <a href="/api/taskProgress/${taskProgress.progressId}/download" target="_blank" download>${fileTitle}</a>
+            </p>
+        `;
+                    } else {
+                        // Nếu không tìm thấy document => thông báo
+                        fileAttachmentHTML = `<p><strong>File đính kèm:</strong> Không tìm thấy document</p>`;
+                    }
                 }
+
 
                 console.log('Attachsment:', taskProgress.attachment);
 

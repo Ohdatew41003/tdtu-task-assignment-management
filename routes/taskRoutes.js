@@ -3,7 +3,7 @@ const router = express.Router();
 const taskController = require("../controllers/taskController");
 
 const { authenticate, hasPermission } = require('../middleware/auth');
-
+const autoRegisterFunction = require('../middleware/autoRegisterFunction');
 // GET /task
 router.get('/task', (req, res) => {
     res.render('task/task', {
@@ -15,7 +15,7 @@ router.get('/dashboard', (req, res) => {
         title: 'Quản lý việc'
     });
 });
-router.get('/evalution', authenticate, (req, res) => {
+router.get('/evalution', authenticate, autoRegisterFunction('trangdanhgiacongviec'), (req, res) => {
     res.render('task/evalution', {
         title: 'Đánh giá đầu việc',
         user: req.user // giả sử req.user có userId

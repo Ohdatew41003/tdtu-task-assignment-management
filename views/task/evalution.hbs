@@ -375,10 +375,95 @@
         #closeUpdateModal:hover {
             background-color: #5a6268;
         }
+
+        #evaluationContainer {
+            margin-top: 20px;
+            padding: 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+            max-height: 500px;
+            /* Giới hạn chiều cao */
+            overflow-y: auto;
+            /* Cho cuộn */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Table Header */
+        #evaluationContainer::before {
+            content: "📋 Lịch sử đánh giá";
+            display: block;
+            background-color: #f0f0f0;
+            padding: 12px 16px;
+            font-weight: bold;
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Mỗi evaluation là 1 row */
+        .evaluation {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1fr 2fr 2fr;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e6e6e6;
+            align-items: start;
+            transition: background-color 0.2s ease;
+        }
+
+        /* Hover hiệu ứng */
+        .evaluation:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Title task hiển thị đẹp */
+        .evaluation h4 {
+            grid-column: 1 / -1;
+            /* Chiếm toàn dòng */
+            font-size: 15px;
+            margin: 0 0 10px 0;
+            color: #222;
+            font-weight: 600;
+            border-left: 4px solid #3498db;
+            padding-left: 8px;
+        }
+
+        /* Format p */
+        .evaluation p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .evaluation strong {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .btn-view-evaluation {
+            display: inline-block;
+            background-color: #cb7f05;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-view-evaluation:hover {
+            background-color: #c92f08;
+        }
     </style>
 </head>
 
 <body data-userid="{{user.userId}}">
+
     <!-- Modal cập nhật tiến độ -->
     <div id="updateProgressModal"
         style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000; max-width:400px;">
@@ -405,9 +490,8 @@
                 style="cursor:pointer; float:right; font-size:20px;">&times;</span>
             <h3>Đánh giá công việc</h3>
             <form id="evaluationForm">
-                <input type="" id="evalTaskId" name="taskId" />
-                <input type="" id="evalEvaluatorId" name="evaluatorId" />
-
+                <input type="hidden" id="evalTaskId" name="taskId" />
+                <input type="hidden" id="evalEvaluatorId" name="evaluatorId" />
                 <label for="rating">Đánh giá:</label>
                 <select id="rating" name="rating" required>
                     <option value="">Chọn mức đánh giá</option>
@@ -418,13 +502,10 @@
                     <option value="Good">Tốt</option>
                     <option value="Excellent">Xuất sắc</option>
                 </select>
-
                 <label for="comment">Bình luận:</label>
                 <textarea id="comment" name="comment" rows="3"></textarea>
-
                 <label for="improvementSuggestions">Gợi ý cải thiện:</label>
                 <textarea id="improvementSuggestions" name="improvementSuggestions" rows="3"></textarea>
-
                 <button type="submit">Gửi đánh giá</button>
             </form>
         </div>
@@ -433,20 +514,17 @@
         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;">
     </div>
 
-
-
-
+    <!-- Header -->
     <header>
         <h1>Dashboard Công Việc</h1>
         <nav>
             <ul>
                 <li><a href="/api/admin/index">Trang Admin</a></li>
-                <li><a href="/api/admin/get">Quản lý người dùng</a></li>
-
+                <li><a href="/api/users/user">Quản lý người dùng</a></li>
                 <li><a href="/api/tasks/task">Quản lý đầu việc</a></li>
                 <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
                 <li><a href="/api/tasks/evalution">Đánh giá</a></li>
-                <li><a href="/api/extensionRequest/extensionRequest">Gia hạn(đang phát triển)</a></li>
+                <li><a href="/api/extensionRequest/extensionRequest">Gia hạn</a></li>
                 <li>
                     <form action="/api/auth/logout" method="POST">
                         <button type="submit">Đăng Xuất</button>
@@ -455,14 +533,20 @@
             </ul>
         </nav>
     </header>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/api/evaluations/lecturerEvaluation" class="btn-view-evaluation">
+            Xem đánh giá giảng viên
+        </a>
+    </div>
 
+
+
+    <!-- Main Container -->
     <div class="container">
         <section class="task-dashboard">
-            <h2>Danh Sách Công Việc để đánh giá(đang phát triển..)</h2>
-
-            <!-- Phần render dữ liệu tĩnh lúc server render -->
+            <h2>Danh Sách Công Việc để đánh giá</h2>
             {{#each taskProgressList}}
-            <div class="task">
+            <div class="task" data-progressid="{{progressId}}" data-taskid="{{taskId}}" data-userid="{{reportedById}}">
                 <h3>Công việc ID: {{taskId}}</h3>
                 <p><strong>Người báo cáo:</strong> {{reportedById}}</p>
                 <p><strong>Mô tả:</strong> {{description}}</p>
@@ -490,302 +574,188 @@
                     <a href="{{attachment.url}}" target="_blank" download>{{attachment.filename}}</a>
                 </p>
                 {{/if}}
-
+                <button class="btn-open-evaluation">Đánh giá công việc</button>
             </div>
             {{/each}}
-
         </section>
 
+        <!-- Evaluation List -->
+        <h2>Lịch sử đánh giá</h2>
+
         <div id="evaluationContainer">
-            <p>Đang tải dữ liệu đánh giá...</p>
+
+
+            <!-- Có thể có nhiều evaluation-item -->
         </div>
+
     </div>
 
+    <!-- JS Logic -->
     <script>
+        let users = [], tasks = [], taskProcess = [], documents = [];
 
-        // Gọi API lấy tất cả đánh giá và hiển thị
-        async function loadEvaluations() {
-            try {
-                const response = await fetch('/api/evaluations/get');
-                if (!response.ok) throw new Error('Không thể tải dữ liệu đánh giá');
-
-                const evaluations = await response.json();
-                const container = document.getElementById('evaluationContainer');
-                container.innerHTML = ''; // Xóa nội dung cũ
-
-                if (evaluations.length === 0) {
-                    container.innerHTML = '<p>Chưa có đánh giá nào.</p>';
-                    return;
-                }
-
-                evaluations.forEach(ev => {
-                    const div = document.createElement('div');
-                    div.className = 'evaluation-item';
-                    div.style.border = '1px solid #ccc';
-                    div.style.padding = '10px';
-                    div.style.marginBottom = '10px';
-
-                    const evaluator = users.find(u => u.userId === ev.evaluatorId);
-                    const evaluatorInfo = evaluator
-                        ? `${evaluator.username} (${evaluator.fullName})`
-                        : `ID: ${ev.evaluatorId}`;
-
-                    div.innerHTML = `
-                    <p><strong>Công việc ID:</strong> ${ev.taskId}</p>
-                    <p><strong>Người đánh giá:</strong> ${evaluatorInfo}</p>
-                    <p><strong>Đánh giá:</strong> ${ev.rating}</p>
-                    <p><strong>Bình luận:</strong> ${ev.comment || 'Không có'}</p>
-                    <p><strong>Gợi ý cải thiện:</strong> ${ev.improvementSuggestions || 'Không có'}</p>
-                        `;
-
-                    container.appendChild(div);
-                });
-            } catch (err) {
-                console.error('Lỗi khi tải đánh giá:', err);
-                document.getElementById('evaluationContainer').innerHTML = '<p>Lỗi khi tải đánh giá.</p>';
-            }
-        }
-
-        // Gọi khi DOM sẵn sàng
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAllData();
-            loadEvaluations(); // Gọi hàm tải đánh giá
-        });
-        // -------------------------
-        // XỬ LÝ MỞ/ĐÓNG MODAL ĐÁNH GIÁ
-        // -------------------------
-        document.addEventListener('click', function (e) {
-            // Mở modal đánh giá khi click nút Đánh giá công việc
-            if (e.target.classList.contains('btn-open-evaluation')) {
-                const taskDiv = e.target.closest('.task');
-                const taskId = taskDiv.getAttribute('data-taskid') || taskDiv.getAttribute('data-progressid');
-
-                if (!taskId) {
-                    alert('Không lấy được ID công việc');
-                    return;
-                }
-                const userId = document.body.dataset.userid;
-                console.log("User ID:", userId);// Lấy userId từ session hoặc biến toàn cục
-
-                document.getElementById('evalTaskId').value = taskId;
-                // Bạn phải set evaluatorId (người đánh giá) theo user đăng nhập, hiện tạm set rỗng hoặc lấy từ session
-                document.getElementById('evalEvaluatorId').value = userId;
-
-                document.getElementById('evaluationModal').style.display = 'block';
-                document.getElementById('modalOverlay').style.display = 'block';
-            }
-
-            // Đóng modal đánh giá
-            if (e.target.id === 'closeEvaluationModal' || e.target.id === 'modalOverlay') {
-                document.getElementById('evaluationModal').style.display = 'none';
-                document.getElementById('modalOverlay').style.display = 'none';
-            }
-        });
-
-        // -------------------------
-        // XỬ LÝ GỬI FORM ĐÁNH GIÁ
-        // -------------------------
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('evaluationForm');
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const data = {
-                    taskId: document.getElementById('evalTaskId').value,
-                    evaluatorId: document.getElementById('evalEvaluatorId').value,
-                    rating: form.rating.value,
-                    comment: form.comment.value,
-                    improvementSuggestions: form.improvementSuggestions.value,
-                };
-
-                console.log('Dữ liệu gửi lên server:', data);
-
-                try {
-                    const response = await fetch('/api/evaluations/create', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data),
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error('Lỗi server:', errorData);
-                        alert('Gửi đánh giá thất bại: ' + (errorData.message || 'Unknown error'));
-                        return;
-                    }
-
-                    const result = await response.json();
-                    console.log('Phản hồi server:', result);
-                    alert('Gửi đánh giá thành công!');
-                    await loadEvaluations();
-                } catch (error) {
-                    console.error('Lỗi mạng hoặc server:', error);
-                }
-            });
-        });
-
-        // -------------------------
-        // KHAI BÁO BIẾN LƯU DỮ LIỆU
-        // -------------------------
-        let users = [];
-        let tasks = [];
-        let taskProcess = [];
-
-        // -------------------------
-        // LOAD ĐỒNG THỜI TASKS VÀ USERS
-        // -------------------------
         async function loadAllData() {
             try {
-                const [tasksRes, usersRes] = await Promise.all([
+                const [tasksRes, usersRes, documentsRes] = await Promise.all([
                     fetch('/api/tasks/get'),
-                    fetch('/api/users/get')
+                    fetch('/api/users/get'),
+                    fetch('/api/documents/get')
                 ]);
-
-                if (!tasksRes.ok || !usersRes.ok) {
-                    throw new Error('Lỗi khi tải dữ liệu tasks hoặc users');
-                }
 
                 tasks = await tasksRes.json();
                 users = await usersRes.json();
+                documents = await documentsRes.json();
 
-                if (!Array.isArray(tasks) || !Array.isArray(users)) {
-                    throw new Error('Dữ liệu tasks hoặc users không đúng định dạng');
-                }
-
-                // Không gọi renderTaskAndUser ở đây nữa, vì hiển thị trong phần tiến độ công việc
                 await loadTaskProgress();
                 await loadEvaluations();
-
             } catch (error) {
-                console.error('Lỗi:', error);
+                console.error('Lỗi khi load dữ liệu:', error);
             }
         }
 
-        // -------------------------
-        // RENDER DANH SÁCH TASK VÀ NGƯỜI LÀM
-        // -------------------------
-        function renderTaskAndUser(tasks, users) {
-            const container = document.getElementById('task-list');
-            if (!container) {
-                console.error('Không tìm thấy phần tử chứa danh sách công việc (id="task-list")');
-                return;
-            }
-
-            container.innerHTML = '';
-
-            tasks.forEach(task => {
-                // Tìm user theo task.userId
-                const user = users.find(u => u.id === task.userId);
-                const userName = user ? user.name : 'Không rõ người làm';
-
-                const item = document.createElement('div');
-                item.textContent = `Công việc: ${task.title} - Người làm: ${userName}`;
-                container.appendChild(item);
-            });
-        }
-
-        // -------------------------
-        // LOAD DỮ LIỆU TIẾN ĐỘ CÔNG VIỆC
-        // -------------------------
         async function loadTaskProgress() {
             try {
                 const response = await fetch('/api/taskProgress/get');
-                if (!response.ok) {
-                    throw new Error('Lỗi khi tải dữ liệu tiến độ công việc');
-                }
                 const jsonData = await response.json();
-
-                // Giả sử jsonData có dạng {success: true, data: [...] }
                 taskProcess = Array.isArray(jsonData) ? jsonData : jsonData.data;
-
-                if (!Array.isArray(taskProcess)) {
-                    throw new Error('Dữ liệu tiến độ không phải là mảng');
-                }
-
                 renderTaskProgress(taskProcess);
             } catch (error) {
-                console.error('Lỗi:', error);
+                console.error('Lỗi khi tải tiến độ:', error);
             }
         }
 
-        // -------------------------
-        // RENDER DANH SÁCH TIẾN ĐỘ CÔNG VIỆC
-        // -------------------------
         function renderTaskProgress(tasksProgress) {
             const container = document.querySelector('.task-dashboard');
-            if (!container) {
-                console.error('Không tìm thấy phần tử chứa tiến độ công việc (.task-dashboard)');
-                return;
-            }
-
-            container.innerHTML = '<h2>Danh Sách Công Việc để đánh giá( đang phát triển thêm... )</h2>';
+            container.innerHTML = '<h2>Danh Sách Công Việc để đánh giá</h2>';
 
             tasksProgress.forEach(taskProgress => {
-                // Tìm task theo taskId
                 const task = tasks.find(t => t.taskId === taskProgress.taskId);
                 const taskTitle = task ? task.title : `Công việc ID: ${taskProgress.taskId}`;
-
-                // Tìm user theo reportedById
                 const user = users.find(u => u.userId === taskProgress.reportedById);
                 const fullName = user ? user.fullName : `Người báo cáo ID: ${taskProgress.reportedById}`;
 
-                const statusClass = taskProgress.progressPercentage === 100
-                    ? 'COMPLETED'
-                    : (taskProgress.progressPercentage > 0 ? 'IN_PROGRESS' : 'PENDING');
+                const statusClass = taskProgress.progressPercentage === 100 ? 'COMPLETED' :
+                    taskProgress.progressPercentage > 0 ? 'IN_PROGRESS' : 'PENDING';
+                const formattedDate = new Date(taskProgress.reportDate).toLocaleDateString('vi-VN');
 
-                const reportDate = new Date(taskProgress.reportDate);
-                const formattedDate = isNaN(reportDate.getTime()) ? '' : reportDate.toLocaleDateString('vi-VN');
-
-                // Xử lý file đính kèm
                 let fileAttachmentHTML = '';
                 if (typeof taskProgress.attachment === 'string' && taskProgress.attachment.trim() !== '') {
-                    const fileUrl = taskProgress.attachment.replace(/\\/g, '/'); // normalize path
-                    const fileName = fileUrl.split('/').pop();
-                    fileAttachmentHTML = `
-                <p><strong>File đính kèm:</strong>
-                    <a href="${fileUrl}" target="_blank" download>${fileName}</a>
-                </p>
-            `;
+                    const documentObj = documents.find(doc => doc.documentId === taskProgress.attachment);
+                    fileAttachmentHTML = documentObj
+                        ? `<p><strong>File đính kèm:</strong>
+                             <a href="/api/taskProgress/${taskProgress.progressId}/download" target="_blank" download>${documentObj.title}</a></p>`
+                        : `<p><strong>File đính kèm:</strong> Không tìm thấy document</p>`;
                 }
 
-                // Debug
-                console.log('Attachment:', taskProgress.attachment);
-
                 const taskHTML = `
-                <div class="task" 
-                data-progressid="${taskProgress.progressId}" 
-                data-taskid="${taskProgress.taskId}" 
-                data-userid="${taskProgress.reportedById}">
-
-
-                <h3>${taskTitle}</h3>
-                <p><strong>Người báo cáo:</strong> ${fullName}</p>
-                <p><strong>Mô tả:</strong> ${taskProgress.description}</p>
-                <p><strong>Trạng thái:</strong> <span class="status ${statusClass}">${statusClass}</span></p>
-                <p><strong>Tiến độ:</strong> ${taskProgress.progressPercentage}%</p>
-                <div class="progress-bar">
-                    <div class="progress-bar-inner" style="width: ${taskProgress.progressPercentage}%; background-color: ${taskProgress.progressPercentage === 100 ? 'green' : '#007bff'};"></div>
-                </div>
-                <p><strong>Ngày báo cáo:</strong> ${formattedDate}</p>
-                ${taskProgress.issues ? `<p><strong>Vấn đề:</strong> ${taskProgress.issues}</p>` : ''}
-                ${fileAttachmentHTML}
-                <button class="btn-open-evaluation">Đánh giá công việc</button>
-            </div>
-        `;
+                <div class="task" data-progressid="${taskProgress.progressId}" data-taskid="${taskProgress.taskId}" data-userid="${taskProgress.reportedById}">
+                    <h3>${taskTitle}</h3>
+                    <p><strong>Người báo cáo:</strong> ${fullName}</p>
+                    <p><strong>Mô tả:</strong> ${taskProgress.description}</p>
+                    <p><strong>Trạng thái:</strong> <span class="status ${statusClass}">${statusClass}</span></p>
+                    <p><strong>Tiến độ:</strong> ${taskProgress.progressPercentage}%</p>
+                    <div class="progress-bar">
+                        <div class="progress-bar-inner" style="width: ${taskProgress.progressPercentage}%; background-color: ${taskProgress.progressPercentage === 100 ? 'green' : '#007bff'};"></div>
+                    </div>
+                    <p><strong>Ngày báo cáo:</strong> ${formattedDate}</p>
+                    ${taskProgress.issues ? `<p><strong>Vấn đề:</strong> ${taskProgress.issues}</p>` : ''}
+                    ${fileAttachmentHTML}
+                    <button class="btn-open-evaluation">Đánh giá công việc</button>
+                </div>`;
 
                 container.innerHTML += taskHTML;
             });
+
+            document.querySelectorAll('.btn-open-evaluation').forEach(button => {
+                button.addEventListener('click', function () {
+                    const taskElement = this.closest('.task');
+                    const taskId = taskElement.getAttribute('data-taskid');
+                    const evaluatorId = document.body.getAttribute('data-userid');
+
+                    document.getElementById('evalTaskId').value = taskId;
+                    document.getElementById('evalEvaluatorId').value = evaluatorId;
+
+                    document.getElementById('evaluationModal').style.display = 'block';
+                    document.getElementById('evaluationModalOverlay').style.display = 'block';
+                });
+            });
         }
 
-        // -------------------------
-        // GỌI LOAD DỮ LIỆU KHI TRANG ĐÃ TẢI XONG
-        // -------------------------
-        window.addEventListener('DOMContentLoaded', loadAllData);
+        async function loadEvaluations() {
+            try {
+                const response = await fetch('/api/evaluations/get');
+                const evaluations = await response.json();
+                const container = document.getElementById('evaluationContainer');
+                container.innerHTML = '';
 
+                if (evaluations.length === 0) {
+                    container.innerHTML = '<p>Chưa có dữ liệu đánh giá nào.</p>';
+                    return;
+                }
+
+                evaluations.forEach(evaluation => {
+                    const task = tasks.find(t => t.taskId === evaluation.taskId);
+                    const evaluator = users.find(u => u.userId === evaluation.evaluatorId);
+
+                    const taskTitle = task ? task.title : `Task ID: ${evaluation.taskId}`;
+                    const evaluatorName = evaluator ? evaluator.fullName : `Evaluator ID: ${evaluation.evaluatorId}`;
+
+                    const evalHTML = `
+                    <div class="evaluation">
+                        <h4>${taskTitle}</h4>
+                        <p><strong>Người đánh giá:</strong> ${evaluatorName}</p>
+                        <p><strong>Đánh giá:</strong> ${evaluation.rating}</p>
+                        <p><strong>Bình luận:</strong> ${evaluation.comment}</p>
+                        <p><strong>Gợi ý cải thiện:</strong> ${evaluation.improvementSuggestions}</p>
+                    </div>`;
+
+                    container.innerHTML += evalHTML;
+                });
+            } catch (error) {
+                console.error('Lỗi khi tải đánh giá:', error);
+            }
+        }
+
+        // Close modal khi nhấn X
+        document.getElementById('closeEvaluationModal').addEventListener('click', () => {
+            document.getElementById('evaluationModal').style.display = 'none';
+            document.getElementById('evaluationModalOverlay').style.display = 'none';
+        });
+
+        // Submit form đánh giá
+        document.getElementById('evaluationForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = {
+                taskId: document.getElementById('evalTaskId').value,
+                evaluatorId: document.getElementById('evalEvaluatorId').value,
+                rating: document.getElementById('rating').value,
+                comment: document.getElementById('comment').value,
+                improvementSuggestions: document.getElementById('improvementSuggestions').value
+            };
+
+            try {
+                const response = await fetch('/api/evaluations/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Đánh giá đã được gửi!');
+                    loadEvaluations();
+                    document.getElementById('evaluationModal').style.display = 'none';
+                    document.getElementById('evaluationModalOverlay').style.display = 'none';
+                } else {
+                    alert('Lỗi khi gửi đánh giá.');
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi đánh giá:', error);
+                alert('Lỗi khi gửi đánh giá.');
+            }
+        });
+
+        // Khởi động khi trang load
+        document.addEventListener('DOMContentLoaded', loadAllData);
     </script>
 </body>
-
-</html>
