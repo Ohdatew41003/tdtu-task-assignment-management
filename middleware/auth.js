@@ -1,7 +1,9 @@
 // D:\DACNTT\middleware\auth.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
+const RolePermission = require('../models/Role_Permission');
+const FunctionModel = require('../models/Function');
+const UserRole = require('../models/UserRole'); // import model user-role
 const authenticate = async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(' ')[1]; // Lấy token từ cookie hoặc header
 
@@ -28,46 +30,41 @@ const authenticate = async (req, res, next) => {
 };
 
 
-const UserRole = require('../models/UserRole');  // đường dẫn model UserRole
-const Role = require('../models/Role');
-const hasPermission = (...permissions) => {
+
+const hasPermission = function (functionName) {
   return async (req, res, next) => {
     try {
       const userId = req.user.userId;
-      if (!userId) {
-        return res.status(401).json({ error: 'Không xác định được userId' });
+
+
+      // Bước 1: Lấy roleId từ bảng UserRole
+      const ur = await UserRole.findOne({ userId });
+      if (!ur) return res.status(403).send('Bạn chưa được gán vai trò');
+
+      const roleId = ur.roleId;
+
+      // Bước 2: Lấy functionId từ FunctionModel
+      const func = await FunctionModel.findOne({ functionName });
+      if (!func) return res.status(500).send('Function chưa được đăng ký');
+
+      // Bước 3: Kiểm tra quyền trong RolePermission
+      const permitted = await RolePermission.findOne({
+        roleId,
+        functionId: func.functionId
+      });
+
+      if (permitted) {
+        return next();
+      } else {
+        return res.status(403).send('Bạn không có quyền thực hiện chức năng này');
       }
 
-      // Lấy tất cả roleId của user
-      const userRoles = await UserRole.find({ userId });
-      if (!userRoles.length) {
-        return res.status(403).json({ error: 'User chưa được gán vai trò' });
-      }
-
-      const roleIds = userRoles.map(ur => ur.roleId);
-
-      // Lấy tất cả permission theo role
-      const rolePermissions = await RolePermission.find({ roleId: { $in: roleIds } });
-
-      const userPermissions = rolePermissions.map(rp => rp.permissionCode);
-
-      // Kiểm tra xem user có ít nhất một permission yêu cầu hay không
-      const hasAtLeastOne = userPermissions.some(p => permissions.includes(p));
-
-      if (!hasAtLeastOne) {
-        return res.status(403).json({
-          error: `Yêu cầu một trong các quyền: ${permissions.join(', ')}`
-        });
-      }
-
-      next(); // Có quyền thì tiếp tục
-    } catch (error) {
-      console.error('Lỗi khi kiểm tra quyền:', error);
-      res.status(500).json({ error: 'Lỗi hệ thống khi kiểm tra quyền' });
+    } catch (err) {
+      console.error('hasPermission lỗi:', err);
+      return res.status(500).send('Lỗi kiểm tra quyền');
     }
   };
 };
-
 
 module.exports = {
   authenticate,

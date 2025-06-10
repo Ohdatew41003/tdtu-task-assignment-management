@@ -194,6 +194,7 @@
                 <li><a href="/api/tasks/dashboard">Quản lý công việc</a></li>
                 <li><a href="/api/tasks/evalution">Đánh giá</a></li>
                 <li><a href="/api/extensionRequest/extensionRequest">Gia hạn</a></li>
+
                 <li>
                     <form action="/api/auth/logout" method="POST">
                         <button type="submit">Đăng Xuất</button>
@@ -202,11 +203,102 @@
             </ul>
         </nav>
     </header>
-
     <main>
         <h2>Trang Phân Quyền</h2>
 
+        <!-- only render the permissions section when user.username is 'admin' -->
+        {{#eq user.username "admin"}}
+        <label for="roleSelect">Chọn vai trò:</label>
+        <select id="roleSelect"></select>
 
-</body>
+        <fieldset>
+            <legend>Danh sách chức năng:</legend>
+            <div id="functionsList"></div>
+        </fieldset>
+        {{else}}
+        <p>Bạn không có quyền truy cập phần Phân quyền.</p>
+        {{/eq}}
 
-</html>
+    </main>
+
+    <script>
+        async function fetchRoles() {
+            const res = await fetch('/api/rolePermissions/roles');
+            return res.json();
+        }
+
+        async function fetchFunctions() {
+            const res = await fetch('/api/rolePermissions/functions');
+            return res.json();
+        }
+
+        async function fetchRolePermissions(roleId) {
+            const res = await fetch(`/api/rolePermissions/role-permission/${roleId}`);
+            return res.json();
+        }
+
+        async function addPermission(roleId, functionId) {
+            await fetch('/api/rolePermissions/role-permission', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roleId, functionId })
+            });
+        }
+
+        async function removePermission(roleId, functionId) {
+            await fetch('/api/rolePermissions/role-permission', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roleId, functionId })
+            });
+        }
+
+        async function init() {
+            const roleSelect = document.getElementById('roleSelect');
+            const functionsList = document.getElementById('functionsList');
+
+            const roles = await fetchRoles();
+            const functions = await fetchFunctions();
+
+            // Populate select role dropdown
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.roleId;
+                option.textContent = role.roleName;
+                roleSelect.appendChild(option);
+            });
+
+            async function loadPermissions() {
+                functionsList.innerHTML = '';
+                const roleId = roleSelect.value;
+                const currentPermissions = await fetchRolePermissions(roleId);
+
+                functions.forEach(func => {
+                    const label = document.createElement('label');
+                    label.style.display = 'block'; // cho xuống dòng từng checkbox
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = func.functionId;
+                    checkbox.checked = currentPermissions.includes(func.functionId);
+
+                    checkbox.addEventListener('change', async () => {
+                        if (checkbox.checked) {
+                            await addPermission(roleId, func.functionId);
+                        } else {
+                            await removePermission(roleId, func.functionId);
+                        }
+                    });
+
+                    label.appendChild(checkbox);
+                    label.append(` ${func.functionName}`);
+                    functionsList.appendChild(label);
+                });
+            }
+
+            roleSelect.addEventListener('change', loadPermissions);
+            await loadPermissions();
+        }
+
+        init();
+    </script>

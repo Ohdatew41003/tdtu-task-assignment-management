@@ -68,13 +68,7 @@ const sendTokens = (res, accessToken, refreshToken) => {
 
 // Hàm điều hướng theo role
 const redirectByRole = (res, roleNames, user) => {
-    if (roleNames.includes('ADMIN')) return res.render('admin/index', { user });
-    if (roleNames.includes('DEPT_HEAD') || roleNames.includes('DEPUTY_HEAD'))
-        return res.render('deptHead/index', { user });
-    if (roleNames.includes('DIVISION_HEAD')) return res.render('divisionHead/index', { user });
-    if (roleNames.includes('COORDINATOR')) return res.render('coordinator/index', { user });
-    if (roleNames.includes('STAFF')) return res.render('staff/index', { user });
-    return res.render('home/lecturerEvaluation', { user });
+    return res.render('admin/index', { user });
 };
 
 // Hàm chính login gọn hơn

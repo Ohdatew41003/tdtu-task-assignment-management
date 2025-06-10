@@ -19,6 +19,8 @@ const evaluationRouters = require('./routes/evaluationRoutes');
 const extensionRequestRouter = require('./routes/extensionRequest');
 const taskExtensionRequestRoutes = require('./routes/taskExtensionRequestRoutes');
 const documentRoutes = require('./routes/documentRoutes');
+const rolePermissionRoutes = require('./routes/rolePermissionRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 // Models
 const User = require('./models/User');
 const RoleModel = require('./models/Role');
@@ -40,7 +42,13 @@ hbs.registerHelper('content', function (name, options) {
   block.push(options.fn(this));
   return date.toLocaleDateString('vi-VN');
 });
+
+hbs.registerHelper('eq', function (a, b, options) {
+  return a === b ? options.fn(this) : options.inverse(this);
+});
 app.set('views', path.join(__dirname, 'views'));
+
+const ensureAdminHasAllPermissions = require('./utils/ensureAdminPermissions');
 
 // Kết nối database và khởi tạo dữ liệu
 const startServer = async () => {
@@ -56,6 +64,8 @@ const startServer = async () => {
     // 👉 Tự động tạo PermissionPermission nếu chưa có
     await Permission.createDefaultPermissionsIfNotExists();
     await Permission.assignAllPermissionsToAdminRole();
+    // 👉 Đảm bảo ADMIN có đầy đủ quyền
+    ensureAdminHasAllPermissions();
 
 
     // Routes
@@ -74,6 +84,10 @@ const startServer = async () => {
     app.use('/api/extensionRequest', extensionRequestRouter);
     app.use('/api/taskExtensionRequestRoutes', taskExtensionRequestRoutes);
     app.use('/api/documents', documentRoutes);
+    app.use('/api/rolePermissions', rolePermissionRoutes);
+
+    app.use('/api/notifications', notificationRoutes);
+
     // Start server
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {

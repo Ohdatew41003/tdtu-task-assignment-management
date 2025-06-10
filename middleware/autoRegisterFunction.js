@@ -1,28 +1,24 @@
 // middleware/autoRegisterFunction.js
-
 const FunctionModel = require('../models/Function');
+const ensureAdminHasAllPermissions = require('../utils/ensureAdminPermissions');
 
 function autoRegisterFunction(functionName) {
     return async (req, res, next) => {
         try {
-            // Kiểm tra functionName đã tồn tại chưa
-            const existingFunction = await FunctionModel.findOne({ functionName });
+            // Tự động thêm function mới nếu chưa có
+            const exists = await FunctionModel.findOne({ functionName });
+            if (!exists) {
+                const func = await FunctionModel.create({ functionName });
+                console.log('✅ Thêm chức năng:', functionName);
 
-            if (!existingFunction) {
-                // Nếu chưa có thì thêm mới
-                const newFunction = new FunctionModel({ functionName });
-                await newFunction.save();
-                console.log(`✅ Đã tự động thêm chức năng: ${functionName}`);
-            } else {
-                console.log(`ℹ️ Chức năng "${functionName}" đã tồn tại`);
+                // Sau khi thêm, chạy ensure để Admin có quyền luôn
+                await ensureAdminHasAllPermissions();
             }
 
-            // (Có thể thêm kiểm tra quyền user tại đây nếu cần)
-
-            next(); // Cho phép đi tiếp
+            next();
         } catch (err) {
-            console.error('❌ Lỗi khi xử lý middleware autoRegisterFunction:', err);
-            res.status(500).json({ error: 'Lỗi khi xử lý quyền chức năng' });
+            console.error('❌ autoRegisterFunction lỗi:', err);
+            res.status(500).json({ error: 'Lỗi khi đăng ký chức năng' });
         }
     };
 }

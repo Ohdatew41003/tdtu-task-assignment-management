@@ -12,7 +12,6 @@ const RoleSchema = new Schema({
         unique: true
     },
     description: { type: String },
-    permissions: [{ type: String }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
