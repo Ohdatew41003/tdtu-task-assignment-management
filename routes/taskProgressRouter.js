@@ -4,7 +4,7 @@ const multer = require('multer');
 const taskProgressController = require('../controllers/taskProgressController');
 const fs = require('fs');
 const path = require('path');
-
+const { authenticate, hasPermission } = require('../middleware/auth');
 // Cấu hình Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -28,7 +28,7 @@ const upload = multer({ storage });
 
 // Routes
 router.post('/create', taskProgressController.createTaskProgress);
-router.get('/get', taskProgressController.getAllTaskProgress);
+router.get('/get', authenticate, taskProgressController.getAllTaskProgress);
 router.put('/update/:progressId', upload.single('attachment'), taskProgressController.updateProgress);
 router.delete('/delete/:progressId', taskProgressController.deleteProgress);
 // Example với Express

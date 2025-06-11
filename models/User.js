@@ -42,17 +42,6 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true }); // ✅ Tự động tạo createdAt và updatedAt
 
-// Băm mật khẩu trước khi lưu
-userSchema.pre('save', async function (next) {
-    if (!this.userId) {
-        this.userId = `${uuidv4()}`;
-    }
-    // phần hash password giữ nguyên
-    if (this.isModified('password')) {
-        this.password = await bcrypt.hash(this.password, 10);
-    }
-    next();
-});
 
 
 userSchema.statics.createAdminIfNotExists = async function () {

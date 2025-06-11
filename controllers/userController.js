@@ -62,7 +62,7 @@ const createUser = async (req, res) => {
     try {
         // Kiểm tra tính hợp lệ của dữ liệu
         const { fullName, username, email, password, roles } = req.body;
-
+        console.log('Dữ liệu tạo người dùng:', req.body);
         // Kiểm tra nếu thiếu thông tin
         if (!fullName || !username || !email || !password || !roles) {
             return res.status(400).json({ error: 'Thiếu thông tin cần thiết' });

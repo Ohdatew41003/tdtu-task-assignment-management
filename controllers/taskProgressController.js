@@ -79,13 +79,23 @@ const createTaskProgress = async (req, res) => {
 
 const getAllTaskProgress = async (req, res) => {
     try {
-        const taskProgressList = await TaskProgress.find().lean();
+        let taskProgressList;
+        console.log('User role:', req.user.username, req.user.userId);
+        if (req.user.username === 'admin') {
+            // Admin: lấy toàn bộ
+            taskProgressList = await TaskProgress.find().lean();
+        } else {
+            // Người dùng thường: chỉ lấy tiến độ của mình
+            taskProgressList = await TaskProgress.find({ reportedById: req.user.userId }).lean();
+        }
+
         return res.status(200).json({ data: taskProgressList });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Lỗi server khi lấy tiến độ công việc' });
     }
 };
+
 
 const updateProgress = async (req, res) => {
     try {
