@@ -1,92 +1,107 @@
-# tdtu-task-assignment-management
+# 📚 TDTU Task Assignment Management
 
+> **Ứng dụng phân công và quản lý công việc trong khoa tại Trường Đại học Tôn Đức Thắng**
 
+---
 
-## Getting started
+## 🧩 Giới thiệu
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Đây là hệ thống hỗ trợ **Trưởng khoa**, **Phó khoa**, **Thư ký** và **Giảng viên** trong việc:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Giao việc theo đầu việc định kỳ hoặc đột xuất
+- Theo dõi và báo cáo tiến độ công việc
+- Quản lý yêu cầu gia hạn công việc
+- Đánh giá hiệu quả thực hiện công việc
+- Quản lý đơn vị trực thuộc khoa (bộ môn, tổ)
+- Tổng hợp và thống kê hiệu quả theo cá nhân hoặc đơn vị
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## 🚀 Tính năng đã triển khai
 
-```
-cd existing_repo
-git remote add origin https://gitlab.duthu.net/S52100780/tdtu-task-assignment-management.git
-git branch -M main
-git push -uf origin main
-```
+### 🔐 Quản lý tài khoản và phân quyền
+- Đăng nhập, xác thực bằng JWT
+- Phân quyền: Admin, Trưởng khoa, Phó khoa, Giảng viên, Thư ký
+- Quản lý người dùng, cấp quyền theo đơn vị
 
-## Integrate with your tools
+### 📋 Quản lý công việc
+- Tạo, cập nhật, phân công đầu việc
+- Giao việc cho nhóm hoặc cá nhân
+- Theo dõi trạng thái: Chưa thực hiện – Đang thực hiện – Đã hoàn thành – Trễ hạn
 
-- [ ] [Set up project integrations](https://gitlab.duthu.net/S52100780/tdtu-task-assignment-management/-/settings/integrations)
+### 📊 Báo cáo tiến độ & đánh giá
+- Giảng viên cập nhật tiến độ theo mốc thời gian
+- Trưởng/phó khoa nhận xét và đánh giá theo thang điểm
+- Lưu lịch sử báo cáo và đánh giá
 
-## Collaborate with your team
+### 🕒 Yêu cầu gia hạn
+- Gửi yêu cầu gia hạn công việc
+- Trưởng/phó khoa xét duyệt yêu cầu
+- Lưu lịch sử gia hạn và gửi thông báo
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### 🏢 Quản lý tổ chức & đơn vị
+- Tạo, cập nhật, vô hiệu hóa đơn vị (bộ môn, tổ)
+- Thiết lập trưởng đơn vị, đơn vị cha
+- Đảm bảo không tạo chu trình phân cấp
 
-## Test and Deploy
+### 📦 Tệp đính kèm & tài nguyên
+- Cho phép đính kèm tài liệu báo cáo
+- Quản lý tài nguyên phục vụ công việc (nếu cần)
 
-Use the built-in continuous integration in GitLab.
+### 📈 Thống kê & báo cáo tổng hợp
+- Tổng hợp tiến độ, hiệu quả theo:
+  - Cá nhân
+  - Đơn vị
+  - Thời gian cụ thể
+- Tính điểm đánh giá hoàn thành công việc
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+---
 
-***
+## ⚙️ Công nghệ sử dụng
 
-# Editing this README
+| Thành phần         | Công nghệ sử dụng                         |
+|--------------------|-------------------------------------------|
+| Backend            | Node.js, Express, MongoDB                 |
+| Frontend           | HTML, CSS, Handlebars (HBS)               |
+| Auth & Security    | JSON Web Token (JWT)                      |
+| Giao diện mẫu      | Bootstrap + custom CSS                    |
+| Phân quyền         | Middleware phân quyền theo vai trò        |
+| Môi trường dev     | VS Code, Git, GitHub/GitLab               |
+| Triển khai (local) | `npm install`, `npm start`                |
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+---
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## 🧠 Mô hình dữ liệu (trích lược)
 
-## Name
-Choose a self-explaining name for your project.
+- **User**: thông tin đăng nhập, phân quyền
+- **Role**: vai trò hệ thống
+- **Task**: thông tin đầu việc
+- **TaskAssignment**: phân công công việc
+- **TaskProgress**: tiến độ và báo cáo
+- **Evaluation**: đánh giá kết quả
+- **ExtensionRequest**: yêu cầu gia hạn
+- **Department**: đơn vị tổ chức
+- **Resource / Booking**: tài nguyên và đặt lịch (nếu cần)
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+> 📎 Toàn bộ schema chi tiết đã được định nghĩa trong file `models/` và khớp với tài liệu `FinalReport.docx`
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+---
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## 🖼 Giao diện mẫu (gợi ý)
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+- Dashboard tổng quan công việc
+- Form tạo đầu việc và phân công
+- Giao diện đánh giá + nhận xét
+- Form yêu cầu gia hạn
+- Quản lý đơn vị (sơ đồ tổ chức dạng cây)
+- Thống kê hiệu quả dưới dạng bảng + biểu đồ
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+---
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## 🛠️ Cài đặt nhanh (Local)
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+git clone https://github.com/Ohdatew41003/tdtu-task-assignment-management.git
+cd tdtu-task-assignment-management
+npm install
+npm start
